@@ -12,71 +12,60 @@
 
 namespace tiFy\Plugins\UserControl;
 
+use tiFy\Plugins\UserControl\Contracts\UserControlItemHandlerInterface;
+
 class UserControl
 {
+    /**
+     * Liste des éléments déclarés.
+     * @var UserControlItemHandlerInterface[]
+     */
+    protected $items = [];
+
+    /**
+     * CONSTRUCTEUR.
+     *
+     * @return void
+     */
     public function __construct()
     {
-        exit;
-    }
-
-    /**
-     * Initialisation du controleur.
-     *
-     * @return void
-     */
-    public function appBoot()
-    {
-        // Activation des permissions de prises de contrôle de comptes utilisateurs
-        if ($take_over = $this->appConfig('take_over', [], User::class)) :
-            foreach ($take_over as $id => $attrs) :
-                $this->register($id, $attrs);
-            endforeach;
-        endif;
-
-        $this->appAddAction('init');
-    }
-
-    /**
-     * Déclaration de controleur d'affichage.
-     *
-     * @param Partial $partialController Classe de rappel des controleurs d'affichage.
-     *
-     * @return void
-     */
-    public function tify_partial_register($partialController)
-    {
-        $partialController->register(
-            'TakeOverActionLink',
-            ActionLink::class . "::make"
-        );
-        $partialController->register(
-            'TakeOverAdminBar',
-            AdminBar::class . "::make"
-        );
-        $partialController->register(
-            'TakeOverSwitcherForm',
-            SwitcherForm::class . "::make"
+        add_action(
+            'init',
+            function () {
+                foreach(config('user-control', []) as $name => $attrs) :
+                    $this->_register($name, $attrs);
+                endforeach;
+            },
+            999999
         );
     }
 
     /**
-     * Déclaration des classes de rappel de prise de contrôle de compte utilisateur
+     * Déclaration d'un controleur de prise de contrôle.
      *
      * @param string $name Nom de qualification.
      * @param array $attrs Attributs de configuration.
      *
-     * @return null|TakeOverController
+     * @return null|UserControlItemHandler
      */
-    public function register($name, $attrs = [])
+    private function _register($name, $attrs = [])
     {
-        $alias = "tfy.user.take_over.{$name}";
-        if ($this->appServiceHas($alias)) :
-            return;
-        endif;
+        return $this->items[$name] = app(UserControlItemHandler::class, [$name, $attrs]);
+    }
 
-        $this->appServiceShare($alias, new TakeOverController($name, $attrs));
+    /**
+     * Ajout d'une déclaration de controleur de prise de contrôle.
+     *
+     * @param string $name Nom de qualification.
+     * @param array $attrs Attributs de configuration.
+     *
+     * @return $this
+     */
+    public function add($name, $attrs)
+    {
+        config()->set("user-control.{$name}", $attrs);
 
-        return $this->appServiceGet($alias);
+        return $this;
     }
 
     /**
@@ -84,13 +73,48 @@ class UserControl
      *
      * @param string $name Identifiant de qualification
      *
-     * @return null|TakeOverController
+     * @return null|UserControlItemHandlerInterface
      */
     public function get($name)
     {
-        $alias = "tfy.user.take_over.{$name}";
-        if ($this->appServiceHas($alias)) :
-            return $this->appServiceGet($alias);
+        if (isset($this->items[$name])) :
+            return $this->items[$name];
+        else :
+            return null;
         endif;
+    }
+
+    /**
+     * Récupération du chemin absolu vers le répertoire des ressources.
+     *
+     * @param string $path Chemin relatif du sous-repertoire.
+     *
+     * @return string
+     */
+    public function resourcesDir($path = '')
+    {
+        $cinfo = class_info($this);
+        $path = $path ? '/' . ltrim($path, '/') : '';
+
+        return (file_exists($cinfo->getDirname() . "/Resources{$path}"))
+            ? $cinfo->getDirname() . "/Resources{$path}"
+            : '';
+    }
+
+    /**
+     * Récupération de l'url absolue vers le répertoire des ressources.
+     *
+     * @param string $path Chemin relatif du sous-repertoire.
+     *
+     * @return string
+     */
+    public function resourcesUrl($path = '')
+    {
+        $cinfo = class_info($this);
+        $path = $path ? '/' . ltrim($path, '/') : '';
+
+        return (file_exists($cinfo->getDirname() . "/Resources{$path}"))
+            ? $cinfo->getUrl() . "/Resources{$path}"
+            : '';
     }
 }

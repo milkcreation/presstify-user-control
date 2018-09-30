@@ -1,22 +1,16 @@
 <?php
 
-namespace tiFy\User\UserControl;
+namespace tiFy\Plugins\UserControl;
 
-use Illuminate\Support\Arr;
 use League\Event\Event;
 use League\Event\Emitter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Cookie;
-use tiFy\App\AppController;
+use tiFy\Kernel\Parameters\AbstractParametersBag;
+use tiFy\Plugins\UserControl\Contracts\UserControlItemHandlerInterface;
 
-class TakeOverController extends AppController
+class UserControlItemHandler extends AbstractParametersBag implements UserControlItemHandlerInterface
 {
-    /**
-     * Nom de qualification du controleur.
-     * @var string
-     */
-    protected $name = '';
-
     /**
      * Liste des attributs de configuration.
      * @param array $attributes {
@@ -34,22 +28,28 @@ class TakeOverController extends AppController
     ];
 
     /**
-     * Nom du cookie d'authentication pour la conservation de l'utilisateur principal
+     * Nom du cookie d'authentication pour la conservation de l'utilisateur principal.
      * @var string
      */
     protected $authCookieName = '';
 
     /**
-     * Nom du cookie de connection pour la conservation de l'utilisateur principal
-     * @var string
-     */
-    protected $LoggedInCookieName = '';
-
-    /**
-     * Droit de prise de contrôle de compte d'un utilisateur par l'utilisateur courant
+     * Droit de prise de contrôle de compte d'un utilisateur par l'utilisateur courant.
      * @var bool
      */
-    protected $CanSwitch = false;
+    protected $can = false;
+
+    /**
+     * Nom du cookie de connection pour la conservation de l'utilisateur principal.
+     * @var string
+     */
+    protected $loggedInCookieName = '';
+
+    /**
+     * Nom de qualification du controleur.
+     * @var string
+     */
+    protected $name = '';
 
     /**
      * CONSTRUCTEUR
@@ -62,64 +62,118 @@ class TakeOverController extends AppController
     public function __construct($name, $attrs = [])
     {
         $this->name = $name;
-        $this->attributes = $attrs;
 
-        parent::__construct();
+        parent::__construct($attrs);
 
-        // Définition des Noms de cookie pour la conservation de l'utilisateur principal
-        $this->authCookieName = 'tify_takeover_auth_cookie_' . COOKIEHASH;
-        $this->loggedInCookieName = 'tify_takeover_logged_in_' . COOKIEHASH;
+        $this->authCookieName = 'user_control_auth_cookie_' . COOKIEHASH;
+        $this->loggedInCookieName = 'user_control_logged_in_' . COOKIEHASH;
 
-        $this->appEventListen('tFy.User.TakeOver.canSwitch.' . $this->getName(), [$this, 'eventCanSwitch']);
-        $this->appAddAction('wp_loaded');
+        events()->listen('user_control.can.' . $this->getName(), [$this, 'eventCan']);
 
-        if (!\is_user_logged_in()) :
-            $this->_clearCookies();
-        endif;
+        add_action(
+            'wp_loaded',
+            function () {
+                if (!is_user_logged_in()) :
+                    $this->_clearCookies();
+                elseif (wp_verify_nonce(request()->get('csrf-token'), 'UserControl' . $this->getName())) :
+                    switch(request()->get('action', '')) :
+                        // Prise de contrôle du compte d'un utilisateur
+                        case 'switch' :
+                            $user_id = request()->get('user_id', 0);
+
+                            if (!$this->_can($user_id)) :
+                                wp_die(
+                                    __(
+                                        'Vous ne disposez pas des habilitations suffisantes pour effectuer cette action.',
+                                        'tify'
+                                    ),
+                                    __('Habilitations insuffisantes', 'tify'),
+                                    500
+                                );
+                            endif;
+
+                            $this->_handleSwitch($user_id);
+
+                            wp_redirect(request()->get('_wp_http_referer', home_url('/')));
+                            exit;
+                            break;
+
+                        // Récupération de l'utilisateur principal
+                        case 'restore' :
+                            if (!$this->_handleRestore()) :
+                                \wp_die(
+                                    __(
+                                        'Vous ne disposez pas des habilitations suffisantes pour effectuer cette action.',
+                                        'tify'
+                                    ),
+                                    __('Habilitations insuffisantes', 'tify'),
+                                    500
+                                );
+                            endif;
+
+                            wp_redirect(home_url('/'));
+                            exit;
+                            break;
+
+                        // Action non définie
+                        default :
+                            wp_die(
+                                __(
+                                    'Il semblerait que tout ne se soit pas vraiment déroulé comme prévu ?!',
+                                    'tify'
+                                ),
+                                __('Erreur de traitement', 'tify'),
+                                500
+                            );
+                            break;
+                    endswitch;
+                endif;
+            }
+        );
     }
 
     /**
-     * Vérification de la permission de prise de contrôle d'un utilisateur par l'utilisateur principal courant
+     * Vérification de la permission de prise de contrôle d'un utilisateur par l'utilisateur principal courant.
      *
-     * @param WP_User $wp_user Utilisateur à contrôler
+     * @param WP_User $wp_user Utilisateur à contrôler.
      *
      * @return
      */
-    private function _canSwitch($user)
+    private function _can($user)
     {
         if (!$this->isAuth('switch')) :
-            $this->canSwitch = false;
+            $this->can = false;
         elseif (!$this->isAllowed($user)) :
-            $this->canSwitch = false;
+            $this->can = false;
         else :
-            $caller = \wp_get_current_user();
+            $caller = wp_get_current_user();
             $called = $this->getUserData($user);
 
-            $this->appEventTrigger('tFy.User.TakeOver.canSwitch.'. $this->getName(), $caller, $called);
+            events()->trigger('user_control.can.' . $this->getName(), $caller, $called);
         endif;
 
-        return $this->canSwitch;
+        return $this->can;
     }
 
     /**
-     * Contrôle des cookies d'authentification et récupération de l'utilisateur principal
+     * Contrôle des cookies d'authentification et récupération de l'utilisateur principal.
      *
      * @return int
      */
     private function _checkCookies()
     {
         if (
-            (!$auth_cookie = $this->appRequest('COOKIE')->get($this->authCookieName, '')) ||
-            (!$logged_in_cookie = $this->appRequest('COOKIE')->get($this->loggedInCookieName, ''))
+            (!$auth_cookie = request()->cookie($this->authCookieName, '')) ||
+            (!$logged_in_cookie = request()->cookie($this->loggedInCookieName, ''))
         ) :
             return 0;
         endif;
 
-        if (!\wp_validate_auth_cookie($auth_cookie, (is_ssl() ? 'secure_auth' : 'auth'))) :
+        if (!wp_validate_auth_cookie($auth_cookie, (is_ssl() ? 'secure_auth' : 'auth'))) :
             return 0;
         endif;
 
-        if (!$user_id = \wp_validate_auth_cookie($logged_in_cookie, 'logged_in')) :
+        if (!$user_id = wp_validate_auth_cookie($logged_in_cookie, 'logged_in')) :
             return 0;
         endif;
 
@@ -177,11 +231,11 @@ class TakeOverController extends AppController
             return false;
         endif;
 
-        $this->appEventTrigger("tify.takeover.restore.{$this->name}", $user);
+        events()->trigger('user_control.restore.' . $this->getName(), $user);
 
         $this->_clearCookies();
-        \wp_clear_auth_cookie();
-        \wp_set_auth_cookie((int)$user->ID);
+        wp_clear_auth_cookie();
+        wp_set_auth_cookie((int)$user->ID);
 
         return true;
     }
@@ -208,10 +262,10 @@ class TakeOverController extends AppController
             return;
         endif;
 
-        $this->appEventTrigger("tify.takeover.switch.{$this->name}", $user);
+        events()->trigger('user_control.switch.' . $this->getName(), $user);
 
         if ($this->_setCookies()) :
-            \wp_set_auth_cookie((int)$user->ID);
+            wp_set_auth_cookie((int)$user->ID);
         endif;
     }
 
@@ -226,17 +280,17 @@ class TakeOverController extends AppController
     private function _setCookies()
     {
         // Bypass - Vérification des autorisations utilisateur
-        if (\is_blog_admin() || \is_network_admin() || empty($_COOKIE[LOGGED_IN_COOKIE])) :
+        if (is_blog_admin() || is_network_admin() || empty($_COOKIE[LOGGED_IN_COOKIE])) :
             return false;
         endif;
 
         // Bypass - Récupération des données d'authentification
-        if (!$auth_datas = \wp_parse_auth_cookie()) :
+        if (!$auth_datas = wp_parse_auth_cookie()) :
             return false;
         endif;
 
         // Bypass - Récupération des données de connection
-        if (!$logged_in_datas = \wp_parse_auth_cookie($_COOKIE[LOGGED_IN_COOKIE], 'logged_in')) :
+        if (!$logged_in_datas = wp_parse_auth_cookie($_COOKIE[LOGGED_IN_COOKIE], 'logged_in')) :
             return false;
         endif;
 
@@ -303,50 +357,27 @@ class TakeOverController extends AppController
     }
 
     /**
-     * Vérifie de permission d'appel de prise de contrôle du compte d'un utilisateur (called) par un autre (caller).
-     *
-     * @param \WP_User $caller Objet utilisateur de l'appelant.
-     * @param \WP_User $called Objet utilisateur de l'appelé.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    public function canSwitch($caller, $called)
+    public function can($caller, $called)
     {
         return true;
     }
 
     /**
-     * Evenement de vérification de permission d'appel de prise de contrôle du compte d'un utilisateur (called) par un autre (caller).
-     *
-     * @param \WP_User $caller Objet utilisateur de l'appelant.
-     * @param \WP_User $called Objet utilisateur de l'appelé.
-     *
-     * @return void
+     * {@inheritdoc}
      */
-    final public function eventCanSwitch(Event $event, \WP_User $caller, \WP_User $called)
+    public function eventCan(Event $event, \WP_User $caller, \WP_User $called)
     {
-        if ($event->getName() !== 'tFy.User.TakeOver.canSwitch.' . $this->getName()) :
-            $this->canSwitch = false;
+        if ($event->getName() !== 'user_control.can.' . $this->getName()) :
+            $this->can = false;
+        else :
+            $this->can = $this->can($caller, $called);
         endif;
-
-        $this->canSwitch = $this->canSwitch($caller, $called);
     }
 
     /**
-     * Récupération de la liste des attributs de configuration.
-     *
-     * @param string $key Clé d'indexe de l'attribut. Syntaxe à point permise.
-     * @param mixed $default Valeur de retour par défaut.
-     *
-     * @return mixed
-     */
-    public function get($key, $default = null)
-    {
-        return Arr::get($this->attributes, $key, $default);
-    }
-
-    /**
-     * @return array
+     * {@inheritdoc}
      */
     public function getAllowedRoleList()
     {
@@ -354,9 +385,7 @@ class TakeOverController extends AppController
     }
 
     /**
-     * Récupération du nom de qualification du controleur.
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -364,13 +393,9 @@ class TakeOverController extends AppController
     }
 
     /**
-     * Récupération des données utilisateurs selon son ID, son login ou l'object Wordpress \WP_User.
-     *
-     * @param int|string|\WP_User $user Utilisateur à récupérer.
-     *
-     * @return \WP_User
+     * {@inheritdoc}
      */
-    final public function getUserData($user)
+    public function getUserData($user)
     {
         if (is_a($user, 'WP_User')) :
             return $user;
@@ -382,13 +407,9 @@ class TakeOverController extends AppController
     }
 
     /**
-     * Vérification des permissions de prise de contrôle d'un utilisateur.
-     *
-     * @param WP_User $user Utilisateur à contrôler.
-     *
-     * @return
+     * {@inheritdoc}
      */
-    final public function isAllowed($user)
+    public function isAllowed($user)
     {
         if (!$user = $this->getUserData($user)) :
             return false;
@@ -419,13 +440,9 @@ class TakeOverController extends AppController
     }
 
     /**
-     * Vérification des autorisations de l'utilisateur principal courant
-     *
-     * @param string $action Type d'action. 'switch': prise de contrôle d'un utilisateur|'restore': Récupération de l'utilsateur principal.
-     *
-     * @return bool|WP_User
+     * {@inheritdoc}
      */
-    final public function isAuth($action = 'switch')
+    public function isAuth($action = 'switch')
     {
         if (!is_user_logged_in()) :
             return false;
@@ -467,68 +484,5 @@ class TakeOverController extends AppController
         endif;
 
         return $user;
-    }
-
-    /**
-     * Traitement de la liste des attributs de configuration.
-     *
-     * @param array $attrs Liste des attributs personnalisés.
-     *
-     * @return void
-     */
-    public function parse($attrs)
-    {
-        $this->attributes = array_merge(
-            $this->attributes,
-            $attrs
-        );
-    }
-
-    /**
-     * A l'issue du chargement complet de Wordpress
-     *
-     * @return void
-     */
-    final public function wp_loaded()
-    {
-        if ($this->appRequest()->get('tfy_take_over_id', '') !== $this->getName()) :
-            return;
-        endif;
-
-        // Traitement de l'action
-        switch($this->appRequest()->get('action', '')) :
-            // Prise de contrôle du compte d'un utilisateur
-            case 'switch' :
-                check_admin_referer('tiFyTakeOver-switch');
-
-                $user_id = $this->appRequest('POST')->getInt('user_id', 0);
-
-                if (!$this->_canSwitch($user_id)) :
-                    \wp_die(__('Vous ne disposez pas des habilitations suffisantes pour effectuer cette action. ', 'tify'), __('Habilitations insuffisantes', 'tify'), 500);
-                endif;
-
-                $this->_handleSwitch($user_id);
-
-                \wp_redirect(home_url('/'));
-                exit;
-                break;
-
-            // Récupération de l'utilisateur principal
-            case 'restore' :
-                check_admin_referer('tiFyTakeOver-restore');
-
-                if (!$this->_handleRestore()) :
-                    \wp_die(__('Vous ne disposez pas des habilitations suffisantes pour effectuer cette action. ', 'tify'), __('Habilitations insuffisantes', 'tify'), 500);
-                endif;
-
-                \wp_redirect(home_url('/'));
-                exit;
-                break;
-
-            // Action non définie
-            default :
-                \wp_die(__('Il semblerait que tout ne se soit pas vraiment déroulé comme prévu ?!', 'tify'), __('Erreur de traitement', 'tify'), 500);
-                break;
-        endswitch;
     }
 }

@@ -3,9 +3,10 @@
 namespace tiFy\Plugins\UserControl;
 
 use tiFy\App\Container\AppServiceProvider;
-use tiFy\Plugins\UserControl\Partial\ActionLink;
-use tiFy\Plugins\UserControl\Partial\AdminBar;
-use tiFy\Plugins\UserControl\Partial\SwitcherForm;
+use tiFy\Partial\Partial;
+use tiFy\Plugins\UserControl\Partial\UserControlPanel;
+use tiFy\Plugins\UserControl\Partial\UserControlSwitcher;
+use tiFy\Plugins\UserControl\Partial\UserControlTrigger;
 
 class UserControlServiceProvider extends AppServiceProvider
 {
@@ -13,7 +14,9 @@ class UserControlServiceProvider extends AppServiceProvider
      * Liste des services à instance multiples auto-déclarés.
      * @var string[]
      */
-    protected $bindings = [];
+    protected $bindings = [
+        UserControlItemHandler::class,
+    ];
 
     /**
      * Liste des services à instance unique auto-déclarés.
@@ -30,15 +33,21 @@ class UserControlServiceProvider extends AppServiceProvider
     {
         $this->app->resolve(UserControl::class);
 
-        $partials = [
-            'user-control.action-link'   => ActionLink::class,
-            'user-control.admin-bar'     => AdminBar::class,
-            'user-control.switcher-form' => SwitcherForm::class,
-        ];
-        foreach ($partials as $name => $concrete) :
-            $this->app
-                ->resolve(Partial::class)
-                ->register($name, $concrete);
-        endforeach;
+        add_action(
+            'after_setup_theme',
+            function () {
+                $partials = [
+                    'user-control.panel'     => UserControlPanel::class,
+                    'user-control.switcher'  => UserControlSwitcher::class,
+                    'user-control.trigger'   => UserControlTrigger::class,
+                ];
+                foreach ($partials as $name => $concrete) :
+                    $this->app
+                        ->resolve(Partial::class)
+                        ->register($name, $concrete);
+                endforeach;
+            },
+            1
+        );
     }
 }
