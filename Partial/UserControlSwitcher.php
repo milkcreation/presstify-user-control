@@ -187,11 +187,11 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
                 endif;
                 $role_options[$allowed_role] = Tools::User()->roleDisplayName($allowed_role);
             endforeach;
-            $role_options = ['-1' => __('Choix du role', 'tify')] + $role_options;
+            $role_options = [-1 => __('Choix du role', 'tify')] + $role_options;
             $this->set('role.options', $role_options);
 
-            $user_options = ['-1' => __('Choix de l\'utilisateur', 'tify')];
-            $this->set('user.options', $role_options);
+            $user_options = [-1 => __('Choix de l\'utilisateur', 'tify')];
+            $this->set('user.options', $user_options);
 
             $this->set(
                 'attrs.data-options',
