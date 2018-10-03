@@ -221,7 +221,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
         $user = request()->post('user', []);
         $user = wp_unslash($user);
 
-        $user['options'] = ['-1' => __('Choix de l\'utilisateur', 'tify')];
+        $user['options'] = [-1 => __('Choix de l\'utilisateur', 'tify')];
         if ($user_options = Tools::User()->pluck(
             'display_name',
             'ID',
