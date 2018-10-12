@@ -1,10 +1,12 @@
+"use strict";
+
 jQuery(document).ready(function ($) {
     /**
      * Ouverture/Fermeture.
      */
     $(document).on('click', '[aria-control="user_control-panel_toggle"]', function () {
-        $panel = $($(this).data('target'));
-        var visible = $panel.attr('aria-opened');
+        let $panel = $($(this).data('target')),
+            visible = $panel.attr('aria-opened');
 
         if (visible === 'false') {
             $panel.attr('aria-opened', true);
@@ -16,7 +18,6 @@ jQuery(document).ready(function ($) {
     /**
      * Clic en dehors.
      * @todo problème avec les liste de selection.
-
     $(document).on('click', function (event) {
         if (!$(event.target).closest('[aria-control="user_control-panel"][aria-opened="true"]').length) {
             $('[aria-control="user_control-panel"][aria-opened="true"]').attr('aria-opened', false);
