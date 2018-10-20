@@ -3,19 +3,13 @@
 namespace tiFy\Plugins\UserControl\Partial;
 
 use tiFy\Contracts\Views\ViewInterface;
-use tiFy\Partial\AbstractPartialItem;
+use tiFy\Partial\PartialController;
 use tiFy\Plugins\UserControl\UserControlResolverTrait;
-use tiFy\Plugins\UserControl\Contracts\UserControlPartialItemInterface;
+use tiFy\Plugins\UserControl\Contracts\UserControlPartialController;
 
-class AbstractUserControlPartialItem extends AbstractPartialItem implements UserControlPartialItemInterface
+class AbstractUserControlPartialItem extends PartialController implements UserControlPartialController
 {
     use UserControlResolverTrait;
-
-    /**
-     * Instance du moteur de gabarits d'affichage.
-     * @return ViewsInterface
-     */
-    protected $viewer;
 
     /**
      * {@inheritdoc}

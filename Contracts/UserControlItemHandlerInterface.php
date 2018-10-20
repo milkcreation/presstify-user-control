@@ -2,8 +2,8 @@
 
 namespace tiFy\Plugins\UserControl\Contracts;
 
-use League\Event\Event;
 use tiFy\Contracts\Kernel\ParametersBagInterface;
+use WP_User;
 
 interface UserControlItemHandlerInterface extends ParametersBagInterface
 {
@@ -20,12 +20,12 @@ interface UserControlItemHandlerInterface extends ParametersBagInterface
     /**
      * Evenement de vérification de permission d'appel de prise de contrôle du compte d'un utilisateur (called) par un autre (caller).
      *
-     * @param \WP_User $caller Objet utilisateur de l'appelant.
-     * @param \WP_User $called Objet utilisateur de l'appelé.
+     * @param WP_User $caller Objet utilisateur de l'appelant.
+     * @param WP_User $called Objet utilisateur de l'appelé.
      *
      * @return void
      */
-    public function eventCan(Event $event, \WP_User $caller, \WP_User $called);
+    public function eventCan(WP_User $caller, WP_User $called);
 
     /**
      * @return array

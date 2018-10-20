@@ -2,12 +2,12 @@
 
 namespace tiFy\Plugins\UserControl;
 
-use League\Event\Event;
-use League\Event\Emitter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Cookie;
 use tiFy\Kernel\Parameters\AbstractParametersBag;
 use tiFy\Plugins\UserControl\Contracts\UserControlItemHandlerInterface;
+use WP_User;
+
 
 class UserControlItemHandler extends AbstractParametersBag implements UserControlItemHandlerInterface
 {
@@ -149,7 +149,7 @@ class UserControlItemHandler extends AbstractParametersBag implements UserContro
             $caller = wp_get_current_user();
             $called = $this->getUserData($user);
 
-            events()->trigger('user_control.can.' . $this->getName(), $caller, $called);
+            events()->trigger('user_control.can.' . $this->getName(), [$caller, $called]);
         endif;
 
         return $this->can;
@@ -231,7 +231,7 @@ class UserControlItemHandler extends AbstractParametersBag implements UserContro
             return false;
         endif;
 
-        events()->trigger('user_control.restore.' . $this->getName(), $user);
+        events()->trigger('user_control.restore.' . $this->getName(), [$user]);
 
         $this->_clearCookies();
         wp_clear_auth_cookie();
@@ -253,16 +253,16 @@ class UserControlItemHandler extends AbstractParametersBag implements UserContro
             return;
         endif;
 
-        if ($user instanceof \WP_User) :
+        if ($user instanceof WP_User) :
         else :
             $user = get_userdata($user);
         endif;
 
-        if (!$user instanceof \WP_User) :
+        if (!$user instanceof WP_User) :
             return;
         endif;
 
-        events()->trigger('user_control.switch.' . $this->getName(), $user);
+        events()->trigger('user_control.switch.' . $this->getName(), [$user]);
 
         if ($this->_setCookies()) :
             wp_set_auth_cookie((int)$user->ID);
@@ -367,7 +367,7 @@ class UserControlItemHandler extends AbstractParametersBag implements UserContro
     /**
      * {@inheritdoc}
      */
-    public function eventCan(Event $event, \WP_User $caller, \WP_User $called)
+    public function eventCan(WP_User $caller, WP_User $called)
     {
         if ($event->getName() !== 'user_control.can.' . $this->getName()) :
             $this->can = false;

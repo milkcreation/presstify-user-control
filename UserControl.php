@@ -5,7 +5,7 @@
  * @desc Prise de controle de compte utilisateur.
  * @package presstify-plugins/user-control
  * @namespace tiFy\Plugins\UserControl
- * @version 2.0.3
+ * @version 2.0.4
  * @author Jordy Manner <jordy@tigreblanc.fr>
  * @copyright Milkcreation
  */
