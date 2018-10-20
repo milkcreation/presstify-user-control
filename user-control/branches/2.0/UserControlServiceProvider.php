@@ -3,7 +3,6 @@
 namespace tiFy\Plugins\UserControl;
 
 use tiFy\App\Container\AppServiceProvider;
-use tiFy\Partial\Partial;
 use tiFy\Plugins\UserControl\Partial\UserControlPanel;
 use tiFy\Plugins\UserControl\Partial\UserControlSwitcher;
 use tiFy\Plugins\UserControl\Partial\UserControlTrigger;
@@ -43,11 +42,10 @@ class UserControlServiceProvider extends AppServiceProvider
                 ];
                 foreach ($partials as $name => $concrete) :
                     $this->app
-                        ->resolve(Partial::class)
+                        ->resolve('partial')
                         ->register($name, $concrete);
                 endforeach;
-            },
-            1
+            }
         );
     }
 }

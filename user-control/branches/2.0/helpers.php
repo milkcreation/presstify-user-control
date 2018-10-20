@@ -1,6 +1,6 @@
 <?php
 
-use tiFy\Plugins\UserControl\Contracts\UserControlPartialItemInterface;
+use tiFy\Plugins\UserControl\Contracts\UserControlPartialController;
 
 if (!function_exists('user_control_panel')) :
     /**
@@ -9,7 +9,7 @@ if (!function_exists('user_control_panel')) :
      * @param string Nom de qualification du controleur.
      * @param array Liste des attributs de configuration.
      *
-     * @return UserControlPartialItemInterface
+     * @return UserControlPartialController
      */
     function user_control_panel($name, $attrs = [])
     {
@@ -28,7 +28,7 @@ if (!function_exists('user_control_switcher')) :
      * @param string Nom de qualification du controleur.
      * @param array Liste des attributs de configuration.
      *
-     * @return UserControlPartialItemInterface
+     * @return UserControlPartialController
      */
     function user_control_switcher($name, $attrs = [])
     {
@@ -46,7 +46,7 @@ if (!function_exists('user_control_trigger')) :
      * @param string Nom de qualification du controleur.
      * @param array Liste des attributs de configuration.
      *
-     * @return UserControlPartialItemInterface
+     * @return UserControlPartialController
      */
     function user_control_trigger($name, $attrs = [])
     {

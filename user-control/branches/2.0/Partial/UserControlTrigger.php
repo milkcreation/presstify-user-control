@@ -9,7 +9,6 @@
 
 namespace tiFy\Plugins\UserControl\Partial;
 
-use tiFy\Partial\Partial;
 use tiFy\Plugins\UserControl\UserControl;
 
 class UserControlTrigger extends AbstractUserControlPartialItem
