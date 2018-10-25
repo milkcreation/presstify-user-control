@@ -2,6 +2,7 @@
 
 namespace tiFy\Plugins\UserControl\Contracts;
 
+use League\Event\EventInterface;
 use tiFy\Contracts\Kernel\ParametersBagInterface;
 use WP_User;
 
@@ -22,10 +23,11 @@ interface UserControlItemHandlerInterface extends ParametersBagInterface
      *
      * @param WP_User $caller Objet utilisateur de l'appelant.
      * @param WP_User $called Objet utilisateur de l'appelé.
+     * @param EventInterface $event
      *
      * @return void
      */
-    public function eventCan(WP_User $caller, WP_User $called);
+    public function eventCan(WP_User $caller, WP_User $called, EventInterface $event);
 
     /**
      * @return array
