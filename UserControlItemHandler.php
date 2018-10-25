@@ -367,7 +367,7 @@ class UserControlItemHandler extends AbstractParametersBag implements UserContro
     /**
      * {@inheritdoc}
      */
-    public function eventCan(WP_User $caller, WP_User $called)
+    public function eventCan(WP_User $caller, WP_User $called, $event)
     {
         if ($event->getName() !== 'user_control.can.' . $this->getName()) :
             $this->can = false;
