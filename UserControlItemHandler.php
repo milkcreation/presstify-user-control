@@ -4,12 +4,12 @@ namespace tiFy\Plugins\UserControl;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Cookie;
-use tiFy\Kernel\Parameters\AbstractParametersBag;
+use tiFy\Kernel\Params\ParamsBag;
 use tiFy\Plugins\UserControl\Contracts\UserControlItemHandlerInterface;
 use WP_User;
 
 
-class UserControlItemHandler extends AbstractParametersBag implements UserControlItemHandlerInterface
+class UserControlItemHandler extends ParamsBag implements UserControlItemHandlerInterface
 {
     /**
      * Liste des attributs de configuration.

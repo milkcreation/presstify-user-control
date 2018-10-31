@@ -9,8 +9,6 @@
 
 namespace tiFy\Plugins\UserControl\Partial;
 
-use tiFy\Kernel\Tools;
-
 class UserControlSwitcher extends AbstractUserControlPartialItem
 {
     /**
@@ -185,7 +183,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
                 if (!$role = get_role($allowed_role)) :
                     continue;
                 endif;
-                $role_options[$allowed_role] = Tools::User()->roleDisplayName($allowed_role);
+                $role_options[$allowed_role] = app('wp.user')->roleDisplayName($allowed_role);
             endforeach;
             $role_options = [-1 => __('Choix du role', 'tify')] + $role_options;
             $this->set('role.options', $role_options);
@@ -222,7 +220,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
         $user = wp_unslash($user);
 
         $user['options'] = [-1 => __('Choix de l\'utilisateur', 'tify')];
-        if ($user_options = Tools::User()->pluck(
+        if ($user_options = app('wp.user')->pluck(
             'display_name',
             'ID',
             [

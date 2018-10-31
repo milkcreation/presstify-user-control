@@ -2,7 +2,6 @@
 
 namespace tiFy\Plugins\UserControl\Partial;
 
-use tiFy\Contracts\Views\ViewInterface;
 use tiFy\Partial\PartialController;
 use tiFy\Plugins\UserControl\UserControlResolverTrait;
 use tiFy\Plugins\UserControl\Contracts\UserControlPartialController;
