@@ -3,10 +3,10 @@
 namespace tiFy\Plugins\UserControl\Contracts;
 
 use League\Event\EventInterface;
-use tiFy\Contracts\Kernel\ParametersBagInterface;
+use tiFy\Contracts\Kernel\ParamsBag;
 use WP_User;
 
-interface UserControlItemHandlerInterface extends ParametersBagInterface
+interface UserControlItemHandlerInterface extends ParamsBag
 {
     /**
      * Vérification de permission d'appel de prise de contrôle du compte d'un utilisateur (called) par un autre (caller).
