@@ -8,7 +8,7 @@
 
 <div <?php $this->attrs(); ?>>
     <form <?php echo $this->getHtmlAttrs($this->get('form', [])); ?>>
-        <?php wp_nonce_field('UserControlSwitcherForm'); ?>
+        <?php wp_nonce_field('UserControlSwitcherForm', '_wpnonce', false); ?>
 
         <?php
         echo field(
