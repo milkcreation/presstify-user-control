@@ -1,6 +1,6 @@
 {
   "name": "presstify-plugins/user-control",
-  "description": "Prise de controle de compte utilisateur.",
+  "description": "Extension PresstiFy de prise de controle de compte utilisateur.",
   "type": "presstify-plugin",
   "keywords": [
     "presstify",
@@ -8,8 +8,8 @@
     "wordpress",
     "user"
   ],
-  "homepage": "https://svn.milkcreation.fr/presstify-plugins/user-control",
-  "time": "2018-11-27",
+  "homepage": "https://svn.tigreblanc.fr/presstify-plugins/user-control",
+  "time": "2019-02-21",
   "license": "proprietary",
   "authors": [
     {
@@ -26,7 +26,7 @@
   ],
   "require": {
     "composer/installers": "~1.0",
-    "presstify/framework": ">=1.4"
+    "presstify/framework": "2.0.*"
   },
   "autoload": {
     "files": [

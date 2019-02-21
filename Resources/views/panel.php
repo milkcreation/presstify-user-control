@@ -5,8 +5,7 @@
  * @var tiFy\Plugins\UserControl\Partial\UserControlPartialView $this.
  */
 ?>
-
-<div <?php echo $this->attrs(); ?>>
+<div <?php echo $this->htmlAttrs($this->get('attrs', [])); ?>>
     <button
         type="button" class="UserControlPanel-label"
         aria-control="user_control-panel_toggle"

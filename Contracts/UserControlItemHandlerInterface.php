@@ -19,7 +19,8 @@ interface UserControlItemHandlerInterface extends ParamsBag
     public function can($caller, $called);
 
     /**
-     * Evenement de vérification de permission d'appel de prise de contrôle du compte d'un utilisateur (called) par un autre (caller).
+     * Evenement de vérification de permission d'appel de prise de contrôle du compte d'un utilisateur (called) par un
+     * autre (caller).
      *
      * @param WP_User $caller Objet utilisateur de l'appelant.
      * @param WP_User $called Objet utilisateur de l'appelé.

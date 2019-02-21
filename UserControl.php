@@ -1,19 +1,17 @@
 <?php
 
-/**
- * @name UserControl
- * @desc Prise de controle de compte utilisateur.
- * @package presstify-plugins/user-control
- * @namespace tiFy\Plugins\UserControl
- * @version 2.0.7
- * @author Jordy Manner <jordy@tigreblanc.fr>
- * @copyright Milkcreation
- */
-
 namespace tiFy\Plugins\UserControl;
 
 use tiFy\Plugins\UserControl\Contracts\UserControlItemHandlerInterface;
 
+/**
+ * Class UserControl
+ *
+ * @desc Extension PresstiFy de prise de controle de compte utilisateur.
+ * @author Jordy Manner <jordy@milkcreation.fr>
+ * @package tiFy\Plugins\UserControl
+ * @version 2.0.8
+ */
 class UserControl
 {
     /**
@@ -29,15 +27,11 @@ class UserControl
      */
     public function __construct()
     {
-        add_action(
-            'init',
-            function () {
-                foreach(config('user-control', []) as $name => $attrs) :
-                    $this->_register($name, $attrs);
-                endforeach;
-            },
-            999999
-        );
+        add_action('init', function () {
+            foreach(config('user-control', []) as $name => $attrs) :
+                $this->_register($name, $attrs);
+            endforeach;
+        }, 999999);
     }
 
     /**
@@ -50,7 +44,7 @@ class UserControl
      */
     private function _register($name, $attrs = [])
     {
-        return $this->items[$name] = app(UserControlItemHandler::class, [$name, $attrs]);
+        return $this->items[$name] = app()->get('user-control.handler', [$name, $attrs]);
     }
 
     /**
@@ -77,11 +71,7 @@ class UserControl
      */
     public function get($name)
     {
-        if (isset($this->items[$name])) :
-            return $this->items[$name];
-        else :
-            return null;
-        endif;
+        return $this->items[$name] ?? null;
     }
 
     /**

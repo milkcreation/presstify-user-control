@@ -11,6 +11,6 @@ trait UserControlResolverTrait
      */
     public function uc()
     {
-        return app(UserControl::class);
+        return app()->get('user-control');
     }
 }
