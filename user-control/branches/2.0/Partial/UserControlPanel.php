@@ -1,12 +1,5 @@
 <?php
 
-/**
- * @name UserControl - Panneau.
- * @desc Interface utilisateur de bascule.
- * @author Jordy Manner <jordy@tigreblanc.fr>
- * @copyright Milkcreation
- */
-
 namespace tiFy\Plugins\UserControl\Partial;
 
 class UserControlPanel extends AbstractUserControlPartialItem
@@ -81,6 +74,8 @@ class UserControlPanel extends AbstractUserControlPartialItem
                 return $this->viewer('panel', $this->all());
             endif;
         endif;
+
+        return '';
     }
 
     /**
@@ -97,6 +92,10 @@ class UserControlPanel extends AbstractUserControlPartialItem
         endif;
 
         $this->visible = true;
+
+        if (!$this->get('attrs.id')) :
+            $this->set('attrs.id', 'UserControlPanel-' .$this->getIndex());
+        endif;
 
         $this->set('attrs.aria-control', 'user_control-panel');
 

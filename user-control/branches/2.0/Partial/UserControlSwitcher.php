@@ -1,12 +1,5 @@
 <?php
 
-/**
- * @name UserControl - Switcher.
- * @desc Controleur d'affichage de fomulaire de bascule de prise de contrôle d'un utilisateur.
- * @author Jordy Manner <jordy@tigreblanc.fr>
- * @copyright Milkcreation
- */
-
 namespace tiFy\Plugins\UserControl\Partial;
 
 class UserControlSwitcher extends AbstractUserControlPartialItem
@@ -15,11 +8,11 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
      * Liste des attributs de configuration.
      * @var array $role {
      *              Attributs de configuration du champ de selection des roles.
-     * @see \tiFy\Field\SelectJs\SelectJs
+     * @see \tiFy\Field\Fields\SelectJs\SelectJs
      *          }
      * @var array $user {
      *              Attributs de configuration du champ de selection des utilisateurs.
-     * @see \tiFy\Field\SelectJs\SelectJs
+     * @see \tiFy\Field\Fields\SelectJs\SelectJs
      *          }
      * }
      */
@@ -93,6 +86,8 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
         if ($this->visible) :
             return $this->viewer('switcher', $this->all());
         endif;
+
+        return '';
     }
 
     /**
@@ -152,8 +147,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
                     'value'     => -1,
                     'disabled'  => true,
                     'picker'    => [
-                        'filter' => true,
-                        'filter' => true,
+                        'filter' => true
                     ],
                     'removable' => false,
                 ],
@@ -183,13 +177,13 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
                 if (!$role = get_role($allowed_role)) :
                     continue;
                 endif;
-                $role_options[$allowed_role] = app('wp.user')->roleDisplayName($allowed_role);
+                $role_options[$allowed_role] = wp_env()->user()->roleDisplayName($allowed_role);
             endforeach;
             $role_options = [-1 => __('Choix du role', 'tify')] + $role_options;
-            $this->set('role.options', $role_options);
+            $this->set('role.choices', $role_options);
 
             $user_options = [-1 => __('Choix de l\'utilisateur', 'tify')];
-            $this->set('user.options', $user_options);
+            $this->set('user.choices', $user_options);
 
             $this->set(
                 'attrs.data-options',
@@ -220,7 +214,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
         $user = wp_unslash($user);
 
         $user['options'] = [-1 => __('Choix de l\'utilisateur', 'tify')];
-        if ($user_options = app('wp.user')->pluck(
+        if ($user_options = wp_env()->user()->pluck(
             'display_name',
             'ID',
             [
@@ -228,16 +222,13 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
                 'number' => -1,
             ]
         )) :
-            $user['options'] += $user_options;
+            $user['choices'] += $user_options;
             $user['disabled'] = false;
         else :
             $user['disabled'] = true;
         endif;
 
-        echo field(
-            'select-js',
-            $user
-        );
+        echo field('select-js', $user);
 
         exit;
     }

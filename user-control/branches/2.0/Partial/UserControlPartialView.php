@@ -4,33 +4,8 @@ namespace tiFy\Plugins\UserControl\Partial;
 
 use tiFy\Partial\PartialView;
 
-/**
- * Class UserControlPartialView.
- *
- * @method string after().
- * @method string attrs().
- * @method string before().
- * @method string content().
- * @method string getHtmlAttrs().
- * @method string getId().
- * @method string getIndex().
- */
 class UserControlPartialView extends PartialView
 {
-    /**
-     * Liste des méthodes héritées.
-     * @var array
-     */
-    protected $mixins = [
-        'after',
-        'attrs',
-        'before',
-        'content',
-        'getHtmlAttrs',
-        'getId',
-        'getIndex'
-    ];
-
     /**
      * Translation d'appel des méthodes de l'application associée.
      *
@@ -47,5 +22,7 @@ class UserControlPartialView extends PartialView
                 $arguments
             );
         endif;
+
+        return null;
     }
 }
