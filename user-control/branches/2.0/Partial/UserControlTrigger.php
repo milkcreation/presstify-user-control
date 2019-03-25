@@ -1,15 +1,6 @@
 <?php
 
-/**
- * @name UserControl - Trigger.
- * @desc Controleur d'affichage de lien de récupération de l'utilisateur principal ou de bascule de compte utilisateur.
- * @author Jordy Manner <jordy@tigreblanc.fr>
- * @copyright Milkcreation
- */
-
 namespace tiFy\Plugins\UserControl\Partial;
-
-use tiFy\Plugins\UserControl\UserControl;
 
 class UserControlTrigger extends AbstractUserControlPartialItem
 {
@@ -55,17 +46,15 @@ class UserControlTrigger extends AbstractUserControlPartialItem
      */
     public function display()
     {
-        if ($this->visible) :
-            return $this->viewer('trigger', $this->all());
-        endif;
+        return $this->visible ? $this->viewer('trigger', $this->all()) : '';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function parse($attrs = [])
+    public function parse()
     {
-        parent::parse($attrs);
+        parent::parse();
 
         $action = $this->get('action');
 

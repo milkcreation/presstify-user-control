@@ -2,9 +2,9 @@
 
 namespace tiFy\Plugins\UserControl\Contracts;
 
-use tiFy\Contracts\Partial\PartialController;
+use tiFy\Contracts\Partial\PartialFactory;
 
-interface UserControlPartialController extends PartialController
+interface UserControlPartialController extends PartialFactory
 {
     /**
      * Récupération du chemin absolu vers le répertoire des ressources.

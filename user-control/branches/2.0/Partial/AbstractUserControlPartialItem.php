@@ -2,11 +2,11 @@
 
 namespace tiFy\Plugins\UserControl\Partial;
 
-use tiFy\Partial\PartialController;
+use tiFy\Partial\PartialFactory;
 use tiFy\Plugins\UserControl\UserControlResolverTrait;
 use tiFy\Plugins\UserControl\Contracts\UserControlPartialController;
 
-class AbstractUserControlPartialItem extends PartialController implements UserControlPartialController
+class AbstractUserControlPartialItem extends PartialFactory implements UserControlPartialController
 {
     use UserControlResolverTrait;
 
