@@ -177,7 +177,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
                 if (!$role = get_role($allowed_role)) :
                     continue;
                 endif;
-                $role_options[$allowed_role] = wp_env()->user()->roleDisplayName($allowed_role);
+                $role_options[$allowed_role] = wordpress()->user()->roleDisplayName($allowed_role);
             endforeach;
             $role_options = [-1 => __('Choix du role', 'tify')] + $role_options;
             $this->set('role.choices', $role_options);
@@ -214,7 +214,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
         $user = wp_unslash($user);
 
         $user['options'] = [-1 => __('Choix de l\'utilisateur', 'tify')];
-        if ($user_options = wp_env()->user()->pluck(
+        if ($user_options = wordpress()->user()->pluck(
             'display_name',
             'ID',
             [

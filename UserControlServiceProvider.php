@@ -3,20 +3,20 @@
 namespace tiFy\Plugins\UserControl;
 
 use tiFy\App\Container\AppServiceProvider;
-use tiFy\Plugins\UserControl\Partial\UserControlPanel;
-use tiFy\Plugins\UserControl\Partial\UserControlSwitcher;
-use tiFy\Plugins\UserControl\Partial\UserControlTrigger;
 
 class UserControlServiceProvider extends AppServiceProvider
 {
     /**
      * Liste des noms de qualification des services fournis.
-     * @internal requis. Tous les noms de qualification de services à traiter doivent être renseignés.
+     * {@internal Permet le chargement différé des services qualifié.}
      * @var string[]
      */
     protected $provides = [
         'user-control',
-        'user-control.handler'
+        'user-control.handler',
+        'user-control.partial.panel',
+        'user-control.partial.switcher',
+        'user-control.partial.trigger',
     ];
 
     /**
@@ -24,15 +24,14 @@ class UserControlServiceProvider extends AppServiceProvider
      */
     public function boot()
     {
-        add_action('after_setup_tify', function () {
-            $partials = [
-                'user-control.panel'     => UserControlPanel::class,
-                'user-control.switcher'  => UserControlSwitcher::class,
-                'user-control.trigger'   => UserControlTrigger::class,
-            ];
-            foreach ($partials as $name => $concrete) :
-                partial()->register($name, $concrete);
-            endforeach;
+        add_action('after_setup_theme', function () {
+            foreach (['panel', 'switcher', 'trigger'] as $alias) {
+                $classname = '\tiFy\Plugins\UserControl\Partial\UserControl' . ucfirst($alias);
+                $this->getContainer()->get('partial')->register(
+                    "user-control.{$alias}",
+                    new $classname()
+                );
+            }
         });
     }
 

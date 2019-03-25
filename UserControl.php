@@ -10,7 +10,7 @@ use tiFy\Plugins\UserControl\Contracts\UserControlItemHandlerInterface;
  * @desc Extension PresstiFy de prise de controle de compte utilisateur.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\UserControl
- * @version 2.0.8
+ * @version 2.0.9
  */
 class UserControl
 {
