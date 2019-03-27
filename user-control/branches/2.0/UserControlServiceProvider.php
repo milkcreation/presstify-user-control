@@ -3,6 +3,9 @@
 namespace tiFy\Plugins\UserControl;
 
 use tiFy\App\Container\AppServiceProvider;
+use tiFy\Plugins\UserControl\Partial\UserControlPanel;
+use tiFy\Plugins\UserControl\Partial\UserControlSwitcher;
+use tiFy\Plugins\UserControl\Partial\UserControlTrigger;
 
 class UserControlServiceProvider extends AppServiceProvider
 {
@@ -14,9 +17,9 @@ class UserControlServiceProvider extends AppServiceProvider
     protected $provides = [
         'user-control',
         'user-control.handler',
-        'user-control.partial.panel',
-        'user-control.partial.switcher',
-        'user-control.partial.trigger',
+        'partial.factory.user-control.panel',
+        'partial.factory.user-control.switcher',
+        'partial.factory.user-control.trigger',
     ];
 
     /**
@@ -25,11 +28,12 @@ class UserControlServiceProvider extends AppServiceProvider
     public function boot()
     {
         add_action('after_setup_theme', function () {
+            $this->getContainer()->get('user-control');
+
             foreach (['panel', 'switcher', 'trigger'] as $alias) {
-                $classname = '\tiFy\Plugins\UserControl\Partial\UserControl' . ucfirst($alias);
                 $this->getContainer()->get('partial')->register(
                     "user-control.{$alias}",
-                    new $classname()
+                    $this->getContainer()->get("partial.factory.user-control.{$alias}")
                 );
             }
         });
@@ -44,8 +48,26 @@ class UserControlServiceProvider extends AppServiceProvider
             return new UserControl();
         });
 
-        $this->getContainer()->add('user-control.handler', function($name, $attrs = []) {
+        $this->getContainer()->add('user-control.handler', function($name, $attrs) {
             return new UserControlItemHandler($name, $attrs);
+        });
+
+        $this->getContainer()->add(
+            'partial.factory.user-control.panel',
+            function(?string $id = null, ?array $attrs = null) {
+                return new UserControlPanel($id, $attrs);
+        });
+
+        $this->getContainer()->add(
+            'partial.factory.user-control.switcher',
+            function(?string $id = null, ?array $attrs = null) {
+                return new UserControlSwitcher($id, $attrs);
+        });
+
+        $this->getContainer()->add(
+            'partial.factory.user-control.trigger',
+            function(?string $id = null, ?array $attrs = null) {
+                return new UserControlTrigger($id, $attrs);
         });
     }
 }

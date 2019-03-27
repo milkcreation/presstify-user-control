@@ -11,7 +11,7 @@ class AbstractUserControlPartialItem extends PartialFactory implements UserContr
     use UserControlResolverTrait;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function resourcesDir($path = '')
     {
@@ -19,7 +19,7 @@ class AbstractUserControlPartialItem extends PartialFactory implements UserContr
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function resourcesUrl($path = '')
     {
@@ -27,7 +27,7 @@ class AbstractUserControlPartialItem extends PartialFactory implements UserContr
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function viewer($view = null, $data = [])
     {

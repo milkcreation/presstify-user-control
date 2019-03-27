@@ -5,10 +5,37 @@ namespace tiFy\Plugins\UserControl\Partial;
 class UserControlSwitcher extends AbstractUserControlPartialItem
 {
     /**
+     * Indicateur de visibilité du controleur.
+     * @var boolean
+     */
+    protected $visible = false;
+
+    /**
+     * @inheritdoc
+     */
+    public function boot()
+    {
+        add_action('init', function () {
+            add_action('wp_ajax_user_control_switcher', [$this, 'ajax']);
+
+            add_action('wp_ajax_nopriv_user_control_switcher', [$this, 'ajax']);
+
+            wp_register_script(
+                'UserControlSwitcher',
+                $this->resourcesUrl('/assets/js/switcher.js'),
+                [],
+                171218,
+                true
+            );
+        });
+    }
+
+    /**
      * Liste des attributs de configuration.
+     *
      * @var array $role {
      *              Attributs de configuration du champ de selection des roles.
-     * @see \tiFy\Field\Fields\SelectJs\SelectJs
+     *                  @see \tiFy\Field\Fields\SelectJs\SelectJs
      *          }
      * @var array $user {
      *              Attributs de configuration du champ de selection des utilisateurs.
@@ -16,61 +43,20 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
      *          }
      * }
      */
-    protected $attributes = [
-        'name'   => '',
-        'attrs'  => [],
-        'role'   => [],
-        'user'   => [],
-        'viewer' => [],
-    ];
-
-    /**
-     * Indicateur de visibilité du controleur.
-     * @var boolean
-     */
-    protected $visible = false;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function boot()
-    {
-        add_action(
-            'init',
-            function () {
-                add_action(
-                    'wp_ajax_user_control_switcher',
-                    [$this, 'ajax']
-                );
-
-                add_action(
-                    'wp_ajax_nopriv_user_control_switcher',
-                    [$this, 'ajax']
-                );
-
-                wp_register_script(
-                    'UserControlSwitcher',
-                    $this->resourcesUrl('/assets/js/switcher.js'),
-                    [],
-                    171218,
-                    true
-                );
-            }
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function defaults()
     {
-        return [
+        return array_merge(parent::defaults(), [
+            'name'   => '',
+            'attrs'  => [],
+            'role'   => [],
             'redirect_url' => home_url('/'),
-        ];
+            'user'   => [],
+            'viewer' => []
+        ]);
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function enqueue_scripts()
     {
@@ -79,23 +65,23 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function display()
     {
-        if ($this->visible) :
+        if ($this->visible) {
             return $this->viewer('switcher', $this->all());
-        endif;
-
-        return '';
+        } else {
+            return '';
+        }
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
-    public function parse($attrs = [])
+    public function parse()
     {
-        parent::parse($attrs);
+        parent::parse();
 
         $this->set('attrs.aria-control', 'user_control-switcher');
 
@@ -103,65 +89,40 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
 
         $this->set('ajax_nonce', wp_create_nonce('UserControlSwitcher' . $this->get('name')));
 
-        $this->set(
-            'form.method',
-            'post'
-        );
+        $this->set('form.method', 'post');
 
-        $this->set(
-            'form.action',
-            wp_nonce_url(
-                $this->get('redirect_url'),
-                'UserControl' . $this->get('name'),
-                'csrf-token'
-            )
-        );
+        $this->set('form.action', wp_nonce_url(
+            $this->get('redirect_url'),
+            'UserControl' . $this->get('name'),
+            'csrf-token'
+        ));
 
+        $this->set('role', array_merge([
+            'name'      => 'role',
+            'value'     => -1,
+            'filter'    => false,
+            'removable' => false,
+        ], $this->get('role', [])));
 
-        $this->set(
-            'role',
-            array_merge(
-                [
-                    'name'      => 'role',
-                    'value'     => -1,
-                    'filter'    => false,
-                    'removable' => false,
-                ],
-                $this->get('role', [])
-            )
-        );
-
-        $this->set(
+        $this->set('role.attrs.class', $this->get(
             'role.attrs.class',
-            $this->get(
-                'role.attrs.class',
-                '%s UserControlSwitcher-select--role'
-            )
-        );
+            '%s UserControlSwitcher-select--role'
+        ));
 
-        $this->set(
-            'user',
-            array_merge(
-                [
-                    'name'      => 'user_id',
-                    'value'     => -1,
-                    'disabled'  => true,
-                    'picker'    => [
-                        'filter' => true
-                    ],
-                    'removable' => false,
-                ],
-                $this->get('user', [])
-            )
-        );
+        $this->set('user', array_merge([
+            'name'      => 'user_id',
+            'value'     => -1,
+            'disabled'  => true,
+            'picker'    => [
+                'filter' => true
+            ],
+            'removable' => false,
+        ], $this->get('user', [])));
 
-        $this->set(
+        $this->set('user.attrs.class', $this->get(
             'user.attrs.class',
-            $this->get(
-                'user.attrs.class',
-                '%s UserControlSwitcher-select--user'
-            )
-        );
+            '%s UserControlSwitcher-select--user'
+        ));
 
         if (!$handler = $this->uc()->get($this->get('name'))) :
             return;
@@ -185,19 +146,11 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
             $user_options = [-1 => __('Choix de l\'utilisateur', 'tify')];
             $this->set('user.choices', $user_options);
 
-            $this->set(
-                'attrs.data-options',
-                rawurlencode(
-                    json_encode(
-                        [
-                            'action'     => $this->get('ajax_action'),
-                            'csrf-token' => $this->get('ajax_nonce'),
-                            'user'       => $this->get('user'),
-                        ],
-                        JSON_FORCE_OBJECT
-                    )
-                )
-            );
+            $this->set('attrs.data-options', rawurlencode(json_encode([
+                    'action'     => $this->get('ajax_action'),
+                    'csrf-token' => $this->get('ajax_nonce'),
+                    'user'       => $this->get('user'),
+                ], JSON_FORCE_OBJECT)));
         endif;
     }
 
@@ -214,14 +167,11 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
         $user = wp_unslash($user);
 
         $user['options'] = [-1 => __('Choix de l\'utilisateur', 'tify')];
-        if ($user_options = wordpress()->user()->pluck(
-            'display_name',
-            'ID',
-            [
+        if ($user_options = wordpress()->user()->pluck('display_name', 'ID', [
                 'role'   => request()->post('role', ''),
                 'number' => -1,
-            ]
-        )) :
+            ])
+        ) :
             $user['choices'] += $user_options;
             $user['disabled'] = false;
         else :
