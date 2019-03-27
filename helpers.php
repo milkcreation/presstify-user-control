@@ -17,7 +17,6 @@ if (!function_exists('user_control_panel')) :
     }
 endif;
 
-
 if (!function_exists('user_control_switcher')) :
     /**
      * Formulaire de bascule de prise de contrôle d'utilisateur.
@@ -44,9 +43,6 @@ if (!function_exists('user_control_trigger')) :
      */
     function user_control_trigger($name, $attrs = [])
     {
-        return partial(
-            'user-control.trigger',
-            array_merge($attrs, ['name' => $name])
-        );
+        return partial('user-control.trigger', array_merge($attrs, ['name' => $name]));
     }
 endif;

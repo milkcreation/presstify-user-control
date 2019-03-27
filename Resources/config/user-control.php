@@ -1,8 +1,5 @@
 <?php
 
-/**
- * Exemple de configuration.
- */
-
+// Exemple de configuration.
 return [
 ];
