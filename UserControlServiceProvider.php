@@ -2,12 +2,12 @@
 
 namespace tiFy\Plugins\UserControl;
 
-use tiFy\App\Container\AppServiceProvider;
+use tiFy\Container\ServiceProvider;
 use tiFy\Plugins\UserControl\Partial\UserControlPanel;
 use tiFy\Plugins\UserControl\Partial\UserControlSwitcher;
 use tiFy\Plugins\UserControl\Partial\UserControlTrigger;
 
-class UserControlServiceProvider extends AppServiceProvider
+class UserControlServiceProvider extends ServiceProvider
 {
     /**
      * Liste des noms de qualification des services fournis.
