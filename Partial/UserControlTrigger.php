@@ -11,18 +11,7 @@ class UserControlTrigger extends AbstractUserControlPartialItem
     protected $visible = false;
 
     /**
-     * Liste des attributs de configuration.
-     *
-     * @return array $attrs {
-     *      @var string $take_over_id Identifiant de qualification du contrôleur d'affichage (requis).
-     *      @var int $user_id Identifiant de qualification de l'utilisateur (requis). Mais uniquement pour l'action
-     *                        'switch'.
-     *      @var string $action $action Type d'action. 'switch': prise de contrôle d'un utilisateur|'restore':
-     *                                  Récupération de l'utilsateur principal (défaut).
-     *      @var string $text Texte du bouton.
-     *      @var array $attrs Attributs de la balise du lien. Hors 'href' défini automatiquement par le controleur.
-     *      @var string $redirect_url Url de redirection après l'action.
-     * }
+     * @inheritdoc
      */
     public function defaults()
     {
@@ -38,7 +27,7 @@ class UserControlTrigger extends AbstractUserControlPartialItem
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function display()
     {
@@ -46,7 +35,7 @@ class UserControlTrigger extends AbstractUserControlPartialItem
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function parse()
     {
