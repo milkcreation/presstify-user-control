@@ -31,17 +31,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
     }
 
     /**
-     * Liste des attributs de configuration.
-     *
-     * @var array $role {
-     *              Attributs de configuration du champ de selection des roles.
-     *                  @see \tiFy\Field\Fields\SelectJs\SelectJs
-     *          }
-     * @var array $user {
-     *              Attributs de configuration du champ de selection des utilisateurs.
-     * @see \tiFy\Field\Fields\SelectJs\SelectJs
-     *          }
-     * }
+     * @inheritdoc
      */
     public function defaults()
     {

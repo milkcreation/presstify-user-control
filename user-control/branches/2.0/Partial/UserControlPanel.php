@@ -22,7 +22,6 @@ class UserControlPanel extends AbstractUserControlPartialItem
                 [],
                 171218
             );
-
             wp_register_script(
                 'UserControlPanel',
                 $this->resourcesUrl('/assets/js/panel.js'),
@@ -34,12 +33,7 @@ class UserControlPanel extends AbstractUserControlPartialItem
     }
 
     /**
-     * Liste des attributs de configuration.
-     *
-     * @return array $attrs {
-     *      @var string $take_over_id Identifiant de qualification du contrôleur d'affichage (requis).
-     *      @var bool $in_footer Affichage automatique dans le pied de page du site.
-     * }
+     * @inheritdoc
      */
     public function defaults()
     {
@@ -63,7 +57,6 @@ class UserControlPanel extends AbstractUserControlPartialItem
                 return $this->viewer('panel', $this->all());
             }
         }
-
         return '';
     }
 
@@ -99,15 +92,10 @@ class UserControlPanel extends AbstractUserControlPartialItem
 
         $this->set('attrs.aria-opened', 'false');
 
-        //$this->set('switcher.role.attrs.id', 'UserControlPanel-switcher--role');
-        //$this->set('switcher.role.picker.appendTo', '#UserControlPanel-switcher--role');
-        //$this->set('switcher.user.attrs.id', 'UserControlPanel-switcher--user');
-        //$this->set('switcher.user.picker.appendTo', '#UserControlPanel-switcher--user');
-
-        if($handler->isAuth('switch')) :
+        if($handler->isAuth('switch')) {
             $this->set('auth', 'switch');
-        elseif($handler->isAuth('restore')) :
+        } elseif($handler->isAuth('restore')) {
             $this->set('auth', 'restore');
-        endif;
+        }
     }
 }
