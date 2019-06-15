@@ -23,16 +23,16 @@ class UserControlServiceProvider extends ServiceProvider
     ];
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function boot()
+    public function boot(): void
     {
         add_action('after_setup_theme', function () {
             $this->getContainer()->get('user-control');
 
             foreach (['panel', 'switcher', 'trigger'] as $alias) {
-                $this->getContainer()->get('partial')->register(
-                    "user-control.{$alias}",
+                $this->getContainer()->get('partial')->set(
+                    "user-control-{$alias}",
                     $this->getContainer()->get("partial.factory.user-control.{$alias}")
                 );
             }
@@ -40,9 +40,9 @@ class UserControlServiceProvider extends ServiceProvider
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function register()
+    public function register(): void
     {
         $this->getContainer()->share('user-control', function() {
             return new UserControl();
@@ -52,22 +52,16 @@ class UserControlServiceProvider extends ServiceProvider
             return new UserControlItemHandler($name, $attrs);
         });
 
-        $this->getContainer()->add(
-            'partial.factory.user-control.panel',
-            function(?string $id = null, ?array $attrs = null) {
-                return new UserControlPanel($id, $attrs);
+        $this->getContainer()->add('partial.factory.user-control.panel', function() {
+            return new UserControlPanel();
         });
 
-        $this->getContainer()->add(
-            'partial.factory.user-control.switcher',
-            function(?string $id = null, ?array $attrs = null) {
-                return new UserControlSwitcher($id, $attrs);
+        $this->getContainer()->add('partial.factory.user-control.switcher', function() {
+                return new UserControlSwitcher();
         });
 
-        $this->getContainer()->add(
-            'partial.factory.user-control.trigger',
-            function(?string $id = null, ?array $attrs = null) {
-                return new UserControlTrigger($id, $attrs);
+        $this->getContainer()->add('partial.factory.user-control.trigger', function() {
+                return new UserControlTrigger();
         });
     }
 }
