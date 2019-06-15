@@ -1,6 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace tiFy\Plugins\UserControl\Partial;
+
+use tiFy\Contracts\Partial\PartialFactory;
 
 class UserControlSwitcher extends AbstractUserControlPartialItem
 {
@@ -11,9 +13,9 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
     protected $visible = false;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function boot()
+    public function boot(): void
     {
         add_action('init', function () {
             add_action('wp_ajax_user_control_switcher', [$this, 'ajax']);
@@ -31,9 +33,9 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function defaults()
+    public function defaults(): array
     {
         return array_merge(parent::defaults(), [
             'name'   => '',
@@ -46,21 +48,23 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function enqueue_scripts()
+    public function enqueue(): PartialFactory
     {
-        field('user-control.switcher')->enqueue_scripts();
+        field('user-control-switcher')->enqueue();
         wp_enqueue_script('UserControlSwitcher');
+
+        return $this;
     }
 
     /**
      * @inheritdoc
      */
-    public function display()
+    public function display(): string
     {
         if ($this->visible) {
-            return $this->viewer('switcher', $this->all());
+            return (string)$this->viewer('switcher', $this->all());
         } else {
             return '';
         }
@@ -69,7 +73,7 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
     /**
      * @inheritdoc
      */
-    public function parse()
+    public function parse(): PartialFactory
     {
         parent::parse();
 
@@ -115,11 +119,11 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
         ));
 
         if (!$handler = $this->uc()->get($this->get('name'))) :
-            return;
+            return $this;
         elseif (!$handler->isAuth('switch')) :
-            return;
+            return $this;
         elseif (!$allowed_roles = $handler->getAllowedRoleList()) :
-            return;
+            return $this;
         else :
             $this->visible = true;
 
@@ -142,6 +146,8 @@ class UserControlSwitcher extends AbstractUserControlPartialItem
                     'user'       => $this->get('user'),
                 ], JSON_FORCE_OBJECT)));
         endif;
+
+        return $this;
     }
 
     /**

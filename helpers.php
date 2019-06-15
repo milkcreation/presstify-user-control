@@ -13,7 +13,7 @@ if (!function_exists('user_control_panel')) :
      */
     function user_control_panel($name, $attrs = [])
     {
-        return partial('user-control.panel', array_merge($attrs, ['name' => $name]));
+        return partial('user-control-panel', array_merge($attrs, ['name' => $name]));
     }
 endif;
 
@@ -28,7 +28,7 @@ if (!function_exists('user_control_switcher')) :
      */
     function user_control_switcher($name, $attrs = [])
     {
-        return partial('user-control.switcher', array_merge($attrs, ['name' => $name]));
+        return partial('user-control-switcher', array_merge($attrs, ['name' => $name]));
     }
 endif;
 
@@ -43,6 +43,6 @@ if (!function_exists('user_control_trigger')) :
      */
     function user_control_trigger($name, $attrs = [])
     {
-        return partial('user-control.trigger', array_merge($attrs, ['name' => $name]));
+        return partial('user-control-trigger', array_merge($attrs, ['name' => $name]));
     }
 endif;

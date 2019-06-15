@@ -1,6 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace tiFy\Plugins\UserControl\Partial;
+
+use tiFy\Contracts\Partial\PartialFactory;
 
 class UserControlTrigger extends AbstractUserControlPartialItem
 {
@@ -13,7 +15,7 @@ class UserControlTrigger extends AbstractUserControlPartialItem
     /**
      * @inheritdoc
      */
-    public function defaults()
+    public function defaults(): array
     {
         return array_merge(parent::defaults(), [
             'name'         => '',
@@ -29,24 +31,24 @@ class UserControlTrigger extends AbstractUserControlPartialItem
     /**
      * @inheritdoc
      */
-    public function display()
+    public function display(): string
     {
-        return $this->visible ? $this->viewer('trigger', $this->all()) : '';
+        return $this->visible ? (string) $this->viewer('trigger', $this->all()) : '';
     }
 
     /**
      * @inheritdoc
      */
-    public function parse()
+    public function parse(): PartialFactory
     {
         parent::parse();
 
         $action = $this->get('action');
 
         if (!$handler = $this->uc()->get($this->get('name'))) :
-            return;
+            return $this;
         elseif (!$handler->isAuth($action)) :
-            return;
+            return $this;
         else :
             $this->visible = true;
 
@@ -55,9 +57,9 @@ class UserControlTrigger extends AbstractUserControlPartialItem
             switch ($action) :
                 case 'switch' :
                     if (!$user = $handler->getUserData($user_id)) :
-                        return;
+                        return $this;
                     elseif (!$handler->isAllowed($user->ID)) :
-                        return;
+                        return $this;
                     endif;
 
                     if (!$this->get('content')) :
@@ -100,9 +102,11 @@ class UserControlTrigger extends AbstractUserControlPartialItem
                     );
                     break;
                 default:
-                    return;
+                    return $this;
                     break;
             endswitch;
         endif;
+
+        return $this;
     }
 }

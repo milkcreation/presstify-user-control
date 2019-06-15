@@ -1,6 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace tiFy\Plugins\UserControl\Partial;
+
+use tiFy\Contracts\Partial\PartialFactory;
 
 class UserControlPanel extends AbstractUserControlPartialItem
 {
@@ -11,9 +13,9 @@ class UserControlPanel extends AbstractUserControlPartialItem
     protected $visible = false;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function boot()
+    public function boot(): void
     {
         add_action('init', function () {
             wp_register_style(
@@ -33,9 +35,9 @@ class UserControlPanel extends AbstractUserControlPartialItem
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function defaults()
+    public function defaults(): array
     {
         return array_merge(parent::defaults(), [
             'name'          => '',
@@ -44,9 +46,9 @@ class UserControlPanel extends AbstractUserControlPartialItem
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function display()
+    public function display(): string
     {
         if ($this->visible) {
             if ($this->get('in_footer')) {
@@ -54,32 +56,34 @@ class UserControlPanel extends AbstractUserControlPartialItem
                     echo $this->viewer('panel', $this->all());
                 });
             } else {
-                return $this->viewer('panel', $this->all());
+                return (string)$this->viewer('panel', $this->all());
             }
         }
         return '';
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function enqueue_scripts()
+    public function enqueue(): PartialFactory
     {
         wp_enqueue_style('UserControlPanel');
         wp_enqueue_script('UserControlPanel');
+
+        return $this;
     }
 
     /**
      * @inheritdoc
      */
-    public function parse()
+    public function parse(): PartialFactory
     {
         parent::parse();
 
         if (!$handler = $this->uc()->get($this->get('name'))) {
-            return;
+            return $this;
         } elseif (!$handler->isAuth('switch') && !$handler->isAuth('restore')) {
-            return;
+            return $this;
         }
 
         $this->visible = true;
@@ -97,5 +101,7 @@ class UserControlPanel extends AbstractUserControlPartialItem
         } elseif($handler->isAuth('restore')) {
             $this->set('auth', 'restore');
         }
+
+        return $this;
     }
 }

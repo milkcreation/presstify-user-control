@@ -1,4 +1,4 @@
-.tiFyPartial-UserControlPanel {
+.tiFyPartial-userControlPanel {
   position: fixed;
   top: 110px;
   right: 0;
@@ -47,7 +47,7 @@
   text-align:center;
 }
 
-.tiFyPartial-UserControlTrigger {
+.tiFyPartial-userControlTrigger {
   & {
     display:inline-block;
     padding: 10px 40px;
@@ -89,7 +89,7 @@
  * ORIENTATION PAYSAGE MOBILE + TABLETTE
  */
 @media (max-width: 991px) and (orientation: landscape) {
-  .tiFyPartial-UserControlPanel {
+  .tiFyPartial-userControlPanel {
     top: 70px;
   }
 }
@@ -97,17 +97,17 @@
 /**
  * Animation
  */
-.tiFyPartial-UserControlPanel[aria-opened="false"] {
+.tiFyPartial-userControlPanel[aria-opened="false"] {
   transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   transform: translateX(100%);
 }
 
-.tiFyPartial-UserControlPanel[aria-opened="true"] {
+.tiFyPartial-userControlPanel[aria-opened="true"] {
   transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   transform: translateX(0);
 }
 
-.tiFyPartial-UserControlTrigger {
+.tiFyPartial-userControlTrigger {
   & {
     transition:color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
   }
