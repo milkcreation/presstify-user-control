@@ -1,0 +1,47 @@
+{
+  "name": "presstify-plugins/user-control",
+  "description": "Extension PresstiFy de prise de controle de compte utilisateur.",
+  "type": "presstify-plugin",
+  "keywords": [
+    "presstify",
+    "plugins",
+    "wordpress",
+    "user"
+  ],
+  "homepage": "https://svn.tigreblanc.fr/presstify-plugins/user-control",
+  "time": "2019-06-16",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Jordy Manner",
+      "email": "jordy.manner@milkcreation.fr",
+      "role": "Developper"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://composer.tigreblanc.fr/presstify/"
+    }
+  ],
+  "require": {
+    "composer/installers": "~1.0",
+    "presstify/framework": "2.0.*"
+  },
+  "autoload": {
+    "files": [
+      "helpers.php"
+    ],
+    "psr-4": {
+      "tiFy\\Plugins\\UserControl\\": ""
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "config" : {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "secure-http": false,
+    "sort-packages": true
+  }
+}
