@@ -1,10 +1,13 @@
-/** Librairies tierces */
+// DEPS
+// jQuery
 import 'jquery';
+// PresstiFy Framework
+// Field > SelectJs
 import 'presstify-framework/field/select-js/index';
 
-/** Sass */
-import './scss/styles.scss';
+// SCSS
+import './scss/panel.scss';
 
-/** Scripts */
+// JS
 import './js/panel';
 import './js/switcher';
