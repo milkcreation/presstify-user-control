@@ -56,7 +56,7 @@ class UserControlTrigger extends AbstractUserControlPartialItem
 
             switch ($action) :
                 case 'switch' :
-                    if (!$user = $handler->getUserData($user_id)) :
+                    if (!$user = $handler->getUserData($this->get('user_id'))) :
                         return $this;
                     elseif (!$handler->isAllowed($user->ID)) :
                         return $this;
