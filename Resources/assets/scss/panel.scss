@@ -1,0 +1,121 @@
+.UserControlPanel {
+  position: fixed;
+  top: 110px;
+  right: 0;
+  width: 260px;
+  z-index: 3;
+}
+
+.UserControlPanel-label,
+.UserControlPanel-container {
+  background-color: #FFF;
+  color: #3B3B3B;
+  border: solid 1px #E4E4E4;
+  border-right: 0;
+}
+
+.UserControlPanel-container {
+  position: relative;
+  z-index: 1;
+  padding: 15px 20px 15px 20px;
+  text-align: center;
+}
+
+.UserControlPanel-label {
+  & {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: -79px;
+    width: 80px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: right;
+    text-transform: uppercase;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    cursor: pointer;
+    overflow: hidden;
+    outline: none;
+    padding: 0;
+    z-index: 2;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.UserControlPanel-labelTxt {
+  display: block;
+  padding: 10px;
+}
+
+.UserControlTrigger {
+  & {
+    display: inline-block;
+    padding: 10px 40px;
+    color: #FFF;
+    background-color: #3B3B3B;
+    border-radius: 3px;
+    border: solid 1px #E4E4E4;
+  }
+
+  &:hover,
+  &:active,
+  &:focus {
+    color: #FFF;
+  }
+}
+
+/**
+ * Responsive.
+ */
+/**
+ * COL SM
+ */
+@media (max-width: 991px) {
+  .UserControlPanel-label {
+    left: -60px;
+    width: 60px;
+    font-size: 9px;
+  }
+  .UserControlPanel-labelTxt {
+    padding: 5px;
+  }
+}
+
+/**
+ * ORIENTATION PAYSAGE MOBILE + TABLETTE
+ */
+@media (max-width: 991px) and (orientation: landscape) {
+  .UserControlPanel {
+    top: 70px;
+  }
+}
+
+/**
+ * Animation
+ */
+.UserControlPanel[aria-opened="false"] {
+  transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  transform: translateX(100%);
+}
+
+.UserControlPanel[aria-opened="true"] {
+  transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  transform: translateX(0);
+}
+
+.UserControlTrigger {
+  & {
+    transition: color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  &:hover {
+    transition: color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    color: #3B3B3B;
+    background-color: #FFF;
+  }
+}
