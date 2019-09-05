@@ -1,4 +1,4 @@
-.tiFyPartial-userControlPanel {
+.UserControlPanel {
   position: fixed;
   top: 110px;
   right: 0;
@@ -12,6 +12,13 @@
   color: #3B3B3B;
   border: solid 1px #E4E4E4;
   border-right: 0;
+}
+
+.UserControlPanel-container {
+  position: relative;
+  z-index: 1;
+  padding: 15px 20px 15px 20px;
+  text-align: center;
 }
 
 .UserControlPanel-label {
@@ -40,32 +47,26 @@
   }
 }
 
-.UserControlPanel-container {
-  position: relative;
-  z-index: 1;
-  padding: 15px 20px 15px 20px;
-  text-align:center;
+.UserControlPanel-labelTxt {
+  display: block;
+  padding: 10px;
 }
 
-.tiFyPartial-userControlTrigger {
+.UserControlTrigger {
   & {
-    display:inline-block;
+    display: inline-block;
     padding: 10px 40px;
     color: #FFF;
-    background-color:#3B3B3B;
+    background-color: #3B3B3B;
     border-radius: 3px;
-    border:solid 1px #E4E4E4;
+    border: solid 1px #E4E4E4;
   }
+
   &:hover,
   &:active,
   &:focus {
     color: #FFF;
   }
-}
-
-.UserControlPanel-labelTxt {
-  display: block;
-  padding: 10px;
 }
 
 /**
@@ -89,7 +90,7 @@
  * ORIENTATION PAYSAGE MOBILE + TABLETTE
  */
 @media (max-width: 991px) and (orientation: landscape) {
-  .tiFyPartial-userControlPanel {
+  .UserControlPanel {
     top: 70px;
   }
 }
@@ -97,23 +98,24 @@
 /**
  * Animation
  */
-.tiFyPartial-userControlPanel[aria-opened="false"] {
+.UserControlPanel[aria-opened="false"] {
   transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   transform: translateX(100%);
 }
 
-.tiFyPartial-userControlPanel[aria-opened="true"] {
+.UserControlPanel[aria-opened="true"] {
   transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   transform: translateX(0);
 }
 
-.tiFyPartial-userControlTrigger {
+.UserControlTrigger {
   & {
-    transition:color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
   }
+
   &:hover {
-    transition:color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    transition: color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
     color: #3B3B3B;
-    background-color:#FFF;
+    background-color: #FFF;
   }
 }
