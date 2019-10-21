@@ -1,11 +1,14 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace tiFy\Plugins\UserControl;
 
 use tiFy\Container\ServiceProvider;
-use tiFy\Plugins\UserControl\Partial\UserControlPanel;
-use tiFy\Plugins\UserControl\Partial\UserControlSwitcher;
-use tiFy\Plugins\UserControl\Partial\UserControlTrigger;
+use tiFy\Plugins\UserControl\{
+    Partial\Panel as PartialPanel,
+    Partial\Switcher as PartialSwitcher,
+    Partial\Trigger as PartialTrigger
+};
+use tiFy\Support\Proxy\Partial;
 
 class UserControlServiceProvider extends ServiceProvider
 {
@@ -15,11 +18,7 @@ class UserControlServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $provides = [
-        'user-control',
-        'user-control.handler',
-        'partial.factory.user-control.panel',
-        'partial.factory.user-control.switcher',
-        'partial.factory.user-control.trigger',
+        'user-control'
     ];
 
     /**
@@ -28,14 +27,11 @@ class UserControlServiceProvider extends ServiceProvider
     public function boot(): void
     {
         add_action('after_setup_theme', function () {
-            $this->getContainer()->get('user-control');
+            $uc = $this->getContainer()->get('user-control');
 
-            foreach (['panel', 'switcher', 'trigger'] as $alias) {
-                $this->getContainer()->get('partial')->set(
-                    "user-control-{$alias}",
-                    $this->getContainer()->get("partial.factory.user-control.{$alias}")
-                );
-            }
+            Partial::register('user-control-panel', (new PartialPanel())->setUserControl($uc));
+            Partial::register('user-control-switcher', (new PartialSwitcher())->setUserControl($uc));
+            Partial::register('user-control-trigger', (new PartialTrigger())->setUserControl($uc));
         });
     }
 
@@ -45,23 +41,13 @@ class UserControlServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->getContainer()->share('user-control', function() {
-            return new UserControl();
-        });
+            $concrete = new UserControl();
 
-        $this->getContainer()->add('user-control.handler', function($name, $attrs) {
-            return new UserControlItemHandler($name, $attrs);
-        });
+            foreach(config('user-control', []) as $name => $attrs) {
+                $concrete->register($name, $attrs);
+            }
 
-        $this->getContainer()->add('partial.factory.user-control.panel', function() {
-            return new UserControlPanel();
-        });
-
-        $this->getContainer()->add('partial.factory.user-control.switcher', function() {
-                return new UserControlSwitcher();
-        });
-
-        $this->getContainer()->add('partial.factory.user-control.trigger', function() {
-                return new UserControlTrigger();
+            return $concrete;
         });
     }
 }

@@ -52,20 +52,23 @@
   padding: 10px;
 }
 
-.UserControlTrigger {
-  & {
-    display: inline-block;
-    padding: 10px 40px;
-    color: #FFF;
-    background-color: #3B3B3B;
-    border-radius: 3px;
-    border: solid 1px #E4E4E4;
-  }
+.UserControlPanel-container {
+  .UserControlTrigger {
+    & {
+      display: inline-block;
+      padding: 10px 40px;
+      color: #FFF;
+      background-color: #3B3B3B;
+      border-radius: 3px;
+      border: solid 1px #E4E4E4;
+    }
 
-  &:hover,
-  &:active,
-  &:focus {
-    color: #FFF;
+    &:hover,
+    &:active,
+    &:focus,
+    &:visited {
+      color: #FFF;
+    }
   }
 }
 
@@ -108,14 +111,16 @@
   transform: translateX(0);
 }
 
-.UserControlTrigger {
-  & {
-    transition: color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-  }
+.UserControlPanel-container {
+  .UserControlTrigger {
+    & {
+      transition: color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    }
 
-  &:hover {
-    transition: color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
-    color: #3B3B3B;
-    background-color: #FFF;
+    &:hover {
+      transition: color 0.8s cubic-bezier(0.19, 1, 0.22, 1), background-color 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+      color: #3B3B3B;
+      background-color: #FFF;
+    }
   }
 }
