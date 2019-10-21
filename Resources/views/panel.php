@@ -12,7 +12,7 @@
         data-target="#<?php echo $this->get('attrs.id'); ?>"
     >
         <span class="UserControlPanel-labelTxt">
-            <?php _e('Prise de contrôle', 'theme'); ?>
+            <?php _e('Prise de contrôle', 'tify'); ?>
         </span>
     </button>
 

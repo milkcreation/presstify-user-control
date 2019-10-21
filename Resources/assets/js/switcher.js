@@ -1,4 +1,7 @@
-"use strict";
+'use strict';
+
+import jQuery from 'jquery';
+import 'presstify-framework/field/select-js/index';
 
 jQuery(document).ready(function ($) {
     // Récupération de la liste des utilisateurs liés

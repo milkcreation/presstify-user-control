@@ -1,4 +1,6 @@
-"use strict";
+'use strict';
+
+import jQuery from 'jquery';
 
 jQuery(document).ready(function ($) {
     /**

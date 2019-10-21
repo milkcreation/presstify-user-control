@@ -2,9 +2,10 @@
 
 namespace tiFy\Plugins\UserControl\Partial;
 
-use tiFy\Contracts\Partial\PartialFactory;
+use tiFy\Plugins\UserControl\Contracts\PartialPanel;
+use tiFy\Contracts\Partial\PartialFactory as BasePartialFactory;
 
-class UserControlPanel extends AbstractUserControlPartialItem
+class Panel extends PartialFactory implements PartialPanel
 {
     /**
      * Indicateur de visibilité du controleur.
@@ -20,13 +21,13 @@ class UserControlPanel extends AbstractUserControlPartialItem
         add_action('init', function () {
             wp_register_style(
                 'UserControlPanel',
-                $this->resourcesUrl('/assets/css/panel.css'),
+                $this->userControl->resourcesUrl('/assets/css/panel.css'),
                 [],
                 171218
             );
             wp_register_script(
                 'UserControlPanel',
-                $this->resourcesUrl('/assets/js/panel.js'),
+                $this->userControl->resourcesUrl('/assets/js/panel.js'),
                 ['UserControlSwitcher'],
                 171218,
                 true
@@ -40,8 +41,8 @@ class UserControlPanel extends AbstractUserControlPartialItem
     public function defaults(): array
     {
         return array_merge(parent::defaults(), [
-            'name'          => '',
-            'in_footer'     => true
+            'name'      => '',
+            'in_footer' => true,
         ]);
     }
 
@@ -74,13 +75,13 @@ class UserControlPanel extends AbstractUserControlPartialItem
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function parse(): PartialFactory
+    public function parse(): BasePartialFactory
     {
         parent::parse();
 
-        if (!$handler = $this->uc()->get($this->get('name'))) {
+        if (!$handler = $this->userControl->get($this->get('name'))) {
             return $this;
         } elseif (!$handler->isAuth('switch') && !$handler->isAuth('restore')) {
             return $this;
@@ -96,9 +97,9 @@ class UserControlPanel extends AbstractUserControlPartialItem
 
         $this->set('attrs.aria-opened', 'false');
 
-        if($handler->isAuth('switch')) {
+        if ($handler->isAuth('switch')) {
             $this->set('auth', 'switch');
-        } elseif($handler->isAuth('restore')) {
+        } elseif ($handler->isAuth('restore')) {
             $this->set('auth', 'restore');
         }
 

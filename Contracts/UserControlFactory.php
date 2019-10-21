@@ -1,22 +1,22 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace tiFy\Plugins\UserControl\Contracts;
 
 use League\Event\EventInterface;
-use tiFy\Contracts\Kernel\ParamsBag;
+use tiFy\Contracts\Support\ParamsBag;
 use WP_User;
 
-interface UserControlItemHandlerInterface extends ParamsBag
+interface UserControlFactory extends ParamsBag
 {
     /**
      * Vérification de permission d'appel de prise de contrôle du compte d'un utilisateur (called) par un autre (caller).
      *
-     * @param \WP_User $caller Objet utilisateur de l'appelant.
-     * @param \WP_User $called Objet utilisateur de l'appelé.
+     * @param WP_User $caller Objet utilisateur de l'appelant.
+     * @param WP_User $called Objet utilisateur de l'appelé.
      *
-     * @return bool
+     * @return boolean
      */
-    public function can($caller, $called);
+    public function can($caller, $called): bool;
 
     /**
      * Evenement de vérification de permission d'appel de prise de contrôle du compte d'un utilisateur (called) par un
@@ -28,44 +28,44 @@ interface UserControlItemHandlerInterface extends ParamsBag
      *
      * @return void
      */
-    public function eventCan(WP_User $caller, WP_User $called, EventInterface $event);
+    public function eventCan(WP_User $caller, WP_User $called, EventInterface $event): void;
 
     /**
      * @return array
      */
-    public function getAllowedRoleList();
+    public function getAllowedRoleList(): array;
 
     /**
      * Récupération du nom de qualification du controleur.
      *
      * @return string
      */
-    public function getName();
+    public function getName(): string;
 
     /**
      * Récupération des données utilisateurs selon son ID, son login ou l'object Wordpress \WP_User.
      *
-     * @param int|string|\WP_User $user Utilisateur à récupérer.
+     * @param int|string|WP_User $user Utilisateur à récupérer.
      *
-     * @return \WP_User
+     * @return WP_User|null
      */
-    public function getUserData($user);
+    public function getUserData($user): ?WP_User;
 
     /**
      * Vérification des permissions de prise de contrôle d'un utilisateur.
      *
      * @param WP_User $user Utilisateur à contrôler.
      *
-     * @return
+     * @return boolean
      */
-    public function isAllowed($user);
+    public function isAllowed(WP_User $user): bool;
 
     /**
      * Vérification des autorisations de l'utilisateur principal courant
      *
      * @param string $action Type d'action. 'switch': prise de contrôle d'un utilisateur|'restore': Récupération de l'utilsateur principal.
      *
-     * @return bool|WP_User
+     * @return bool
      */
-    public function isAuth($action = 'switch');
+    public function isAuth($action = 'switch'): bool;
 }
