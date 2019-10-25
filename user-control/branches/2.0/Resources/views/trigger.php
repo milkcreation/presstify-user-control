@@ -2,7 +2,6 @@
 /**
  * Lien de bascule.
  * ---------------------------------------------------------------------------------------------------------------------
- * @var tiFy\Plugins\UserControl\Partial\UserControlPartialView $this .
+ * @var tiFy\Contracts\View\ViewController $this
  */
-?>
-<?php echo partial('tag', $this->all());
+echo partial('tag', $this->all());
