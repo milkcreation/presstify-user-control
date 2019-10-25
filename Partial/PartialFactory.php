@@ -28,7 +28,7 @@ abstract class PartialFactory extends BasePartialFactory implements PartialFacto
                         ? $override_dir
                         : $default_dir
                 )
-                ->set('partial', $this);
+                ->setParam('partial', $this);
         }
 
         if (func_num_args() === 0) {
