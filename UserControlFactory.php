@@ -4,7 +4,7 @@ namespace tiFy\Plugins\UserControl;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Cookie;
-use tiFy\Support\ParamsBag;
+use tiFy\Support\{ParamsBag, Proxy\Request};
 use tiFy\Plugins\UserControl\Contracts\{
     UserControl,
     UserControlFactory as UserControlFactoryContract
@@ -161,17 +161,20 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
      */
     private function _checkCookies()
     {
-        $auth_cookie = request()->cookie($this->authCookieName, '');
-        $logged_in_cookie = request()->cookie($this->loggedInCookieName, '');
+        $auth_cookie = Request::cookie($this->authCookieName, '');
+        $logged_in_cookie = Request::cookie($this->loggedInCookieName, '');
 
         if (!$auth_cookie && ! $logged_in_cookie) {
             return 0;
         }
 
-        if ($auth_cookie && !wp_validate_auth_cookie($auth_cookie, (is_ssl() ? 'secure_auth' : 'auth'))) {
-            return 0;
-        } elseif (!$user_id = wp_validate_auth_cookie($logged_in_cookie, 'logged_in')) {
-            return 0;
+        $user_id = 0;
+        if ($auth_cookie) {
+            $user_id = wp_validate_auth_cookie($auth_cookie, (is_ssl() ? 'secure_auth' : 'auth'));
+        }
+
+        if (!$user_id && $logged_in_cookie) {
+            $user_id = wp_validate_auth_cookie($logged_in_cookie, 'logged_in');
         }
 
         return $user_id;
@@ -407,13 +410,16 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
     {
         if (!is_user_logged_in()) {
             return null;
-        } else if ($action === 'switch') {
-            // Récupération de l'utilisateur principale courant
-            $user = wp_get_current_user();
-        } elseif(($action === 'restore') && ($user_id = $this->_checkCookies())) {
-            $user = get_userdata($user_id);
-        } else {
-            return null;
+        }
+
+        $user = null;
+        switch($action) {
+            case 'switch':
+                $user = wp_get_current_user();
+                break;
+            case 'restore' :
+                $user = get_userdata($this->_checkCookies());
+                break;
         }
 
         if (!is_a($user, 'WP_User')) {
