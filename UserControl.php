@@ -11,7 +11,7 @@ use tiFy\Plugins\UserControl\Contracts\{
  * @desc Extension PresstiFy de prise de controle de compte utilisateur.
  * @author Jordy Manner <jordy@milkcreation.fr>
  * @package tiFy\Plugins\UserControl
- * @version 2.0.18
+ * @version 2.0.19
  */
 class UserControl implements UserControlContract
 {
