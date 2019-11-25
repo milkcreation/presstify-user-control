@@ -19,7 +19,7 @@ jQuery(document).ready(function ($) {
 
     /**
      * Clic en dehors.
-     * @todo problème avec les liste de selection.
+     * @todo EVOLUTION : Problème avec les listes de selection.
     $(document).on('click', function (event) {
         if (!$(event.target).closest('[aria-control="user_control-panel"][aria-opened="true"]').length) {
             $('[aria-control="user_control-panel"][aria-opened="true"]').attr('aria-opened', false);
