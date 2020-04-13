@@ -4,7 +4,7 @@ namespace tiFy\Plugins\UserControl;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Cookie;
-use tiFy\Support\{ParamsBag, Proxy\Request};
+use tiFy\Support\{ParamsBag, Proxy\Partial, Proxy\Request};
 use tiFy\Plugins\UserControl\Contracts\{
     UserControl,
     UserControlFactory as UserControlFactoryContract
@@ -65,14 +65,16 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
         events()->listen('user_control.can.' . $this->getName(), [$this, 'eventCan']);
 
         add_filter('user_row_actions', function (array $actions, WP_User $user) {
-            $actions['user-control'] = (string)partial('user-control-trigger', [
-                'action'    => 'switch',
-                'name'      => $this->getName(),
-                'user_id'   =>  $user->ID
-            ]);
+            if ($trigger = Partial::get('user-control-trigger', [
+                'action'  => 'switch',
+                'name'    => $this->getName(),
+                'user_id' => $user->ID,
+            ])->render()) {
+                $actions['user-control'] = $trigger;
+            }
 
             return $actions;
-        }, 10, 2);
+        }, 999999, 2);
 
         add_action('wp_loaded', function () {
             if (!is_user_logged_in()) {
@@ -164,7 +166,7 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
         $auth_cookie = Request::cookie($this->authCookieName, '');
         $logged_in_cookie = Request::cookie($this->loggedInCookieName, '');
 
-        if (!$auth_cookie && ! $logged_in_cookie) {
+        if (!$auth_cookie && !$logged_in_cookie) {
             return 0;
         }
 
@@ -251,8 +253,7 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
     {
         if (!is_user_logged_in()) {
             return;
-        } elseif ($user instanceof WP_User) {
-        } else {
+        } elseif (!$user instanceof WP_User) {
             $user = get_userdata($user);
         }
 
@@ -270,10 +271,10 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
     /**
      * Définition des Cookies
      *
-     * @var string $cookie_name Identification de qualification du cookie
+     * @return bool
      * @var int $cookie_expire Nombre de secondes avant expiration du cookie
      *
-     * @return bool
+     * @var string $cookie_name Identification de qualification du cookie
      */
     private function _setCookies()
     {
@@ -362,13 +363,13 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
      * {@inheritDoc}
      *
      * @return {
-     *      @var array $auth_roles Liste des rôles autorisés à prendre le contrôle d'un utilsateur.
+     * @var array $auth_roles Liste des rôles autorisés à prendre le contrôle d'un utilsateur.
      *                             ['administrator'] si non pas défini.
-     *      @var array $auth_users Liste des utilisateurs autorisés à prendre le contrôle d'un autre utlisateur.
+     * @var array $auth_users Liste des utilisateurs autorisés à prendre le contrôle d'un autre utlisateur.
      *                             vide par défaut.
-     *      @var array $allowed_roles Liste des rôles utilisateurs pour lesquels la prise de contrôle est autorisés.
+     * @var array $allowed_roles Liste des rôles utilisateurs pour lesquels la prise de contrôle est autorisés.
      *                                ['subscriber'] si non pas défini.
-     *      @var array $allowed_users Liste des utilisateurs pour lesquels la prise de contrôle est permise.
+     * @var array $allowed_users Liste des utilisateurs pour lesquels la prise de contrôle est permise.
      *                                vide par défaut.
      * }
      */
@@ -379,7 +380,7 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
             'auth_users'    => [],
             'allowed_roles' => ['subscriber'],
             'allowed_users' => [],
-            'wp_admin'      => true
+            'wp_admin'      => true,
         ];
     }
 
@@ -413,7 +414,7 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
         }
 
         $user = null;
-        switch($action) {
+        switch ($action) {
             case 'switch':
                 $user = wp_get_current_user();
                 break;

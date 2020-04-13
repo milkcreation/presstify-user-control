@@ -3,9 +3,9 @@
 namespace tiFy\Plugins\UserControl\Partial;
 
 use tiFy\Plugins\UserControl\Contracts\PartialSwitcher;
-use tiFy\Contracts\Partial\PartialFactory as BasePartialFactory;
+use tiFy\Contracts\Partial\PartialDriver as BasePartialDriver;
 
-class Switcher extends PartialFactory implements PartialSwitcher
+class Switcher extends AbstractPartialDriver implements PartialSwitcher
 {
     /**
      * Indicateur de visibilité du controleur.
@@ -18,6 +18,8 @@ class Switcher extends PartialFactory implements PartialSwitcher
      */
     public function boot(): void
     {
+        parent::boot();
+
         add_action('init', function () {
             add_action('wp_ajax_user_control_switcher', [$this, 'ajax']);
 
@@ -51,21 +53,10 @@ class Switcher extends PartialFactory implements PartialSwitcher
     /**
      * @inheritDoc
      */
-    public function enqueue(): PartialFactory
-    {
-        field('user-control-switcher')->enqueue();
-        wp_enqueue_script('UserControlSwitcher');
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function display(): string
+    public function render(): string
     {
         if ($this->visible) {
-            return (string)$this->viewer('switcher', $this->all());
+            return parent::render();
         } else {
             return '';
         }
@@ -74,7 +65,7 @@ class Switcher extends PartialFactory implements PartialSwitcher
     /**
      * @inheritDoc
      */
-    public function parse(): BasePartialFactory
+    public function parse(): BasePartialDriver
     {
         parent::parse();
 

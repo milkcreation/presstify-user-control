@@ -3,9 +3,9 @@
 namespace tiFy\Plugins\UserControl\Partial;
 
 use tiFy\Plugins\UserControl\Contracts\PartialPanel;
-use tiFy\Contracts\Partial\PartialFactory as BasePartialFactory;
+use tiFy\Contracts\Partial\PartialDriver as BasePartialDriver;
 
-class Panel extends PartialFactory implements PartialPanel
+class Panel extends AbstractPartialDriver implements PartialPanel
 {
     /**
      * Indicateur de visibilité du controleur.
@@ -18,6 +18,8 @@ class Panel extends PartialFactory implements PartialPanel
      */
     public function boot(): void
     {
+        parent::boot();
+
         add_action('init', function () {
             wp_register_style(
                 'UserControlPanel',
@@ -43,41 +45,32 @@ class Panel extends PartialFactory implements PartialPanel
         return array_merge(parent::defaults(), [
             'name'      => '',
             'in_footer' => true,
+            'show'      => 'all'
         ]);
     }
 
     /**
      * @inheritDoc
      */
-    public function display(): string
+    public function render(): string
     {
         if ($this->visible) {
             if ($this->get('in_footer')) {
                 add_action(!is_admin() ? 'wp_footer' : 'admin_footer', function () {
-                    echo $this->viewer('panel', $this->all());
+                    echo parent::render();
                 });
             } else {
-                return (string)$this->viewer('panel', $this->all());
+                return parent::render();
             }
         }
+
         return '';
     }
 
     /**
      * @inheritDoc
      */
-    public function enqueue(): PartialFactory
-    {
-        wp_enqueue_style('UserControlPanel');
-        wp_enqueue_script('UserControlPanel');
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function parse(): BasePartialFactory
+    public function parse(): BasePartialDriver
     {
         parent::parse();
 
@@ -87,11 +80,33 @@ class Panel extends PartialFactory implements PartialPanel
             return $this;
         }
 
-        $this->visible = true;
+        switch($this->get('show')) {
+            default:
+            case 'all' :
+                $this->visible = true;
+                break;
+            case 'switch' :
+                if ($handler->isAuth('switch')) {
+                    $this->visible = true;
+                } else {
+                    return $this;
+                }
+                break;
+            case 'restore' :
+                if ($handler->isAuth('restore')) {
+                    $this->visible = true;
+                } else {
+                    return $this;
+                }
+                break;
+        }
+
 
         if (!$this->get('attrs.id')) {
             $this->set('attrs.id', 'UserControlPanel-' . $this->getIndex());
         }
+
+        $this->set('attrs.class', 'UserControlPanel');
 
         $this->set('attrs.aria-control', 'user_control-panel');
 

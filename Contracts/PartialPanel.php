@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\UserControl\Contracts;
 
-interface PartialPanel extends PartialFactory
+interface PartialPanel extends AbstractPartialDriver
 {
 
 }

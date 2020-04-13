@@ -1,6 +1,7 @@
 'use strict';
 
 import jQuery from 'jquery';
+import './switcher';
 
 jQuery(document).ready(function ($) {
     /**
