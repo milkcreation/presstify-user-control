@@ -2,9 +2,9 @@
 
 namespace tiFy\Plugins\UserControl\Contracts;
 
-use tiFy\Contracts\Partial\PartialFactory as BasePartialFactory;
+use tiFy\Contracts\Partial\PartialDriver as BasePartialDriver;
 
-interface PartialFactory extends BasePartialFactory
+interface AbstractPartialDriver extends BasePartialDriver
 {
     /**
      * Définition de l'instance du gestionnaire de plugin
@@ -13,5 +13,5 @@ interface PartialFactory extends BasePartialFactory
      *
      * @return $this
      */
-    public function setUserControl(UserControl $userControl): PartialFactory;
+    public function setUserControl(UserControl $userControl): AbstractPartialDriver;
 }

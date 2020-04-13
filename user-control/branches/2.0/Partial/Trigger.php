@@ -3,9 +3,9 @@
 namespace tiFy\Plugins\UserControl\Partial;
 
 use tiFy\Plugins\UserControl\Contracts\PartialTrigger;
-use tiFy\Contracts\Partial\PartialFactory as BasePartialFactory;
+use tiFy\Contracts\Partial\PartialDriver as BasePartialDriver;
 
-class Trigger extends PartialFactory implements PartialTrigger
+class Trigger extends AbstractPartialDriver implements PartialTrigger
 {
     /**
      * Indicateur de visibilité du controleur.
@@ -32,15 +32,15 @@ class Trigger extends PartialFactory implements PartialTrigger
     /**
      * @inheritDoc
      */
-    public function display(): string
+    public function render(): string
     {
-        return $this->visible ? (string)$this->viewer('trigger', $this->all()) : '';
+        return $this->visible ? parent::render() : '';
     }
 
     /**
      * @inheritDoc
      */
-    public function parse(): BasePartialFactory
+    public function parse(): BasePartialDriver
     {
         parent::parse();
 
@@ -51,9 +51,12 @@ class Trigger extends PartialFactory implements PartialTrigger
         } elseif (!$handler->isAuth($action)) {
             return $this;
         } else {
-            $this->visible = true;
-
-            $this->set('tag', 'a');
+            $this->set('trigger', [
+                'attrs' => [
+                    'class' => 'UserControlTrigger',
+                ],
+                'tag'   => 'a',
+            ]);
 
             switch ($action) {
                 case 'switch' :
@@ -63,33 +66,45 @@ class Trigger extends PartialFactory implements PartialTrigger
                         return $this;
                     }
 
-                    if (!$this->get('content')) {
-                        $this->set('content', __('Naviguer comme', 'tify'));
+                    $this->visible = true;
+
+                    if (!$content = $this->get('content')) {
+                        $this->set('trigger.content', __('Naviguer comme', 'tify'));
+                    } else {
+                        $this->set('trigger.content', $content);
                     }
 
-                    if (!$this->get('attrs.title')) {
+                    if (!$title = $this->get('attrs.title')) {
                         $this->set(
-                            'attrs.title',
+                            'trigger.attrs.title',
                             sprintf(__('Naviguer sur le site en tant que %s', 'tify'), $user->display_name)
                         );
+                    } else {
+                        $this->set('trigger.attrs.title', $title);
                     }
 
-                    $this->set('attrs.href', add_query_arg([
+                    $this->set('trigger.attrs.href', add_query_arg([
                         'action'           => $this->get('action'),
                         'user_id'          => $user->ID,
                         '_wp_http_referer' => $this->get('redirect_url'),
                     ], wp_nonce_url(home_url('/'), 'UserControl' . $this->get('name'), 'csrf-token')));
                     break;
                 case 'restore' :
-                    if (!$this->get('content')) {
-                        $this->set('content', __('Rétablir', 'tify'));
+                    $this->visible = true;
+
+                    if (!$content = $this->get('content')) {
+                        $this->set('trigger.content', __('Rétablir', 'tify'));
+                    } else {
+                        $this->set('trigger.content', $content);
                     }
 
-                    if (!$this->get('attrs.title')) {
-                        $this->set('attrs.title', __('Rétablissement de l\'utilisateur principal', 'tify'));
+                    if (!$title = $this->get('attrs.title')) {
+                        $this->set('trigger.attrs.title', __('Rétablissement de l\'utilisateur principal', 'tify'));
+                    } else {
+                        $this->set('trigger.attrs.title', $title);
                     }
 
-                    $this->set('attrs.href', add_query_arg([
+                    $this->set('trigger.attrs.href', add_query_arg([
                         'action'           => $this->get('action'),
                         '_wp_http_referer' => $this->get('redirect_url'),
                     ], wp_nonce_url(home_url('/'), 'UserControl' . $this->get('name'), 'csrf-token')));

@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\UserControl\Contracts;
 
-interface PartialTrigger extends PartialFactory
+interface PartialTrigger extends AbstractPartialDriver
 {
 
 }

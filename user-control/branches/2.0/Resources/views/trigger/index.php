@@ -2,6 +2,6 @@
 /**
  * Lien de bascule.
  * ---------------------------------------------------------------------------------------------------------------------
- * @var tiFy\Contracts\View\ViewController $this
+ * @var tiFy\Contracts\Partial\PartialView $this
  */
-echo partial('tag', $this->all());
+echo partial('tag', $this->get('trigger', []));

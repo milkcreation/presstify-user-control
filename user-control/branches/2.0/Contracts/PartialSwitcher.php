@@ -2,7 +2,7 @@
 
 namespace tiFy\Plugins\UserControl\Contracts;
 
-interface PartialSwitcher extends PartialFactory
+interface PartialSwitcher extends AbstractPartialDriver
 {
 
 }

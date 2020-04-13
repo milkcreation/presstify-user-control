@@ -2,7 +2,7 @@
 /**
  * Panneau de prise de contrôle.
  * ---------------------------------------------------------------------------------------------------------------------
- * @var tiFy\Contracts\View\ViewController $this
+ * @var tiFy\Contracts\Partial\PartialView $this
  */
 ?>
 <div <?php echo $this->htmlAttrs($this->get('attrs', [])); ?>>

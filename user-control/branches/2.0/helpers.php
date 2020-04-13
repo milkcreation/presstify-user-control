@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use tiFy\Contracts\Partial\PartialFactory;
+use tiFy\Contracts\Partial\PartialDriver;
 
 if (!function_exists('user_control_panel')) {
     /**
@@ -11,7 +11,7 @@ if (!function_exists('user_control_panel')) {
      *
      * @return tiFy\Plugins\UserControl\Contracts\PartialPanel|null
      */
-    function user_control_panel(string $name, array $attrs = []): ?PartialFactory
+    function user_control_panel(string $name, array $attrs = []): ?PartialDriver
     {
         return partial('user-control-panel', array_merge($attrs, ['name' => $name]));
     }
@@ -26,7 +26,7 @@ if (!function_exists('user_control_switcher')) {
      *
      * @return tiFy\Plugins\UserControl\Contracts\PartialSwitcher|null
      */
-    function user_control_switcher(string $name, array $attrs = []): ?PartialFactory
+    function user_control_switcher(string $name, array $attrs = []): ?PartialDriver
     {
         return partial('user-control-switcher', array_merge($attrs, ['name' => $name]));
     }
@@ -41,7 +41,7 @@ if (!function_exists('user_control_trigger')) {
      *
      * @return tiFy\Plugins\UserControl\Contracts\PartialPanel|null
      */
-    function user_control_trigger(string $name, array $attrs = []): ?PartialFactory
+    function user_control_trigger(string $name, array $attrs = []): ?PartialDriver
     {
         return partial('user-control-trigger', array_merge($attrs, ['name' => $name]));
     }
