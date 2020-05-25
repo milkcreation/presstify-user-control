@@ -9,7 +9,7 @@
     "user"
   ],
   "homepage": "https://svn.tigreblanc.fr/presstify-plugins/user-control",
-  "time": "2020-04-13",
+  "time": "2020-05-25",
   "license": "proprietary",
   "authors": [
     {
@@ -26,7 +26,7 @@
   ],
   "require": {
     "composer/installers": "~1.0",
-    "presstify/framework": "2.0.*"
+    "presstify/framework": ">=1.4"
   },
   "autoload": {
     "files": [
