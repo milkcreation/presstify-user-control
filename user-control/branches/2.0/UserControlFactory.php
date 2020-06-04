@@ -2,9 +2,9 @@
 
 namespace tiFy\Plugins\UserControl;
 
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Cookie;
-use tiFy\Support\{ParamsBag, Proxy\Partial, Proxy\Request};
+use tiFy\Http\Response;
+use tiFy\Support\ParamsBag;
+use tiFy\Support\Proxy\{Cookie, Partial, Redirect, Request, Router};
 use tiFy\Plugins\UserControl\Contracts\{
     UserControl,
     UserControlFactory as UserControlFactoryContract
@@ -43,6 +43,8 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
      */
     protected $userControl;
 
+    public $route;
+
     /**
      * CONSTRUCTEUR
      *
@@ -76,59 +78,61 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
             return $actions;
         }, 999999, 2);
 
-        add_action('wp_loaded', function () {
-            if (!is_user_logged_in()) {
-                $this->_clearCookies();
-            } elseif (wp_verify_nonce(request()->get('csrf-token'), 'UserControl' . $this->getName())) {
-                switch (request()->get('action', '')) {
+        $this->route = Router::get(md5("UserControl{$name}"), function () {
+            //if (wp_verify_nonce(Request::input('csrf-token'), 'UserControl' . $this->getName())) {
+                switch (Request::input('action', '')) {
                     // Prise de contrôle du compte d'un utilisateur
                     case 'switch' :
-                        $user_id = request()->get('user_id', 0);
+                        $user_id = Request::input('user_id', 0);
 
                         if (!$this->_can($user_id)) {
-                            wp_die(
+                            return new Response(_default_wp_die_handler(
                                 __(
                                     'Vous ne disposez pas des habilitations suffisantes pour effectuer cette action.',
                                     'tify'
                                 ),
                                 __('Habilitations insuffisantes', 'tify'),
                                 500
-                            );
+                            ));
+                        } else {
+                            $this->_handleSwitch($user_id);
+
+                            return Redirect::to(Request::input('_wp_http_referer', home_url('/')));
                         }
-
-                        $this->_handleSwitch($user_id);
-
-                        wp_redirect(request()->get('_wp_http_referer', home_url('/')));
-                        exit;
                         break;
                     // Récupération de l'utilisateur principal
                     case 'restore' :
-                        if (!$this->_handleRestore()) :
-                            wp_die(
+                        if (!$this->_handleRestore()) {
+                            return new Response(_default_wp_die_handler(
                                 __(
                                     'Vous ne disposez pas des habilitations suffisantes pour effectuer cette action.',
                                     'tify'
                                 ),
                                 __('Habilitations insuffisantes', 'tify'),
                                 500
-                            );
-                        endif;
-
-                        wp_redirect(request()->get('_wp_http_referer', home_url('/')));
-                        exit;
+                            ));
+                        } else {
+                            return Redirect::to(Request::input('_wp_http_referer', home_url('/')));
+                        }
                         break;
                     // Action non définie
                     default :
-                        wp_die(
+                        return new Response(_default_wp_die_handler(
                             __(
                                 'Il semblerait que tout ne se soit pas vraiment déroulé comme prévu ?!',
                                 'tify'
                             ),
                             __('Erreur de traitement', 'tify'),
                             500
-                        );
+                        ));
                         break;
                 }
+            //}
+        });
+
+        add_action('wp_loaded', function () {
+            if (!is_user_logged_in()) {
+                $this->_clearCookies();
             }
         });
     }
@@ -163,20 +167,23 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
      */
     private function _checkCookies()
     {
-        $auth_cookie = Request::cookie($this->authCookieName, '');
-        $logged_in_cookie = Request::cookie($this->loggedInCookieName, '');
+        $auth = Cookie::make($this->authCookieName, ['salt' =>'', 'base64' => true])->get();
+        $loggedin = Cookie::make($this->loggedInCookieName, ['salt' =>'', 'base64' => true])->get();
 
-        if (!$auth_cookie && !$logged_in_cookie) {
+        if (!$auth && !$loggedin) {
             return 0;
         }
 
+        unset($auth['scheme']);
+        unset($loggedin['scheme']);
+
         $user_id = 0;
-        if ($auth_cookie) {
-            $user_id = wp_validate_auth_cookie($auth_cookie, (is_ssl() ? 'secure_auth' : 'auth'));
+        if ($auth) {
+            $user_id = wp_validate_auth_cookie(implode('|',$auth), (is_ssl() ? 'secure_auth' : 'auth'));
         }
 
-        if (!$user_id && $logged_in_cookie) {
-            $user_id = wp_validate_auth_cookie($logged_in_cookie, 'logged_in');
+        if (!$user_id && $loggedin) {
+            $user_id = wp_validate_auth_cookie(implode('|', $loggedin), 'logged_in');
         }
 
         return $user_id;
@@ -189,37 +196,36 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
      */
     private function _clearCookies()
     {
-        $secure = ('https' === parse_url(home_url(), PHP_URL_SCHEME));
+        Cookie::make(md5($this->authCookieName), [
+            'name'   =>  $this->authCookieName,
+            'path'   => PLUGINS_COOKIE_PATH,
+            'domain' => COOKIE_DOMAIN,
+            'salt'   => '',
+            'base64' => true
+        ])->clear();
 
-        $response = new Response();
-        $response->headers->clearCookie(
-            $this->authCookieName,
-            PLUGINS_COOKIE_PATH,
-            COOKIE_DOMAIN,
-            $secure
-        );
-        $response->headers->clearCookie(
-            $this->authCookieName,
-            ADMIN_COOKIE_PATH,
-            COOKIE_DOMAIN,
-            $secure
-        );
-        $response->headers->clearCookie(
-            $this->loggedInCookieName,
-            COOKIEPATH,
-            COOKIE_DOMAIN,
-            $secure
-        );
-        if (COOKIEPATH != SITECOOKIEPATH) :
-            $response->headers->clearCookie(
-                $this->loggedInCookieName,
-                SITECOOKIEPATH,
-                COOKIE_DOMAIN,
-                $secure
-            );
-        endif;
+        Cookie::make(md5($this->authCookieName . 'admin'), [
+            'name'   =>  $this->authCookieName,
+            'path'   => ADMIN_COOKIE_PATH,
+            'domain' => COOKIE_DOMAIN,
+            'salt'   => '',
+        ])->clear();
 
-        $response->send();
+        Cookie::make(md5($this->loggedInCookieName), [
+            'name'   =>  $this->loggedInCookieName,
+            'path'   => COOKIEPATH,
+            'domain' => COOKIE_DOMAIN,
+            'salt'   => ''
+        ])->clear();
+
+        if (COOKIEPATH != SITECOOKIEPATH) {
+            Cookie::make(md5($this->loggedInCookieName . 'site'), [
+                'name'   =>  $this->loggedInCookieName,
+                'path'   => SITECOOKIEPATH,
+                'domain' => COOKIE_DOMAIN,
+                'salt'   => ''
+            ])->clear();
+        }
     }
 
     /**
@@ -279,76 +285,51 @@ class UserControlFactory extends ParamsBag implements UserControlFactoryContract
     private function _setCookies()
     {
         if (is_blog_admin() || is_network_admin() || empty($_COOKIE[LOGGED_IN_COOKIE])) {
-            // Bypass - Vérification des autorisations utilisateur.
             return false;
         } elseif (!$auth_datas = wp_parse_auth_cookie('', 'logged_in')) {
-            // Bypass - Récupération des données d'authentification
             return false;
         } elseif (!$logged_in_datas = wp_parse_auth_cookie($_COOKIE[LOGGED_IN_COOKIE], 'logged_in')) {
-            // Bypass - Récupération des données de connection
             return false;
         }
 
-        // Définition des données de cookie d'authentification et de connection
-        $auth_cookie = $auth_datas['username'] . '|' . $auth_datas['expiration'] . '|' . $auth_datas['token'] . '|' . $auth_datas['hmac'];
-        $logged_in_cookie = $logged_in_datas['username'] . '|' . $logged_in_datas['expiration'] . '|' . $logged_in_datas['token'] . '|' . $logged_in_datas['hmac'];
+        //$auth_cookie = $auth_datas['username'] . '|' . $auth_datas['expiration'] . '|' . $auth_datas['token'] . '|' . $auth_datas['hmac'];
+        //$logged_in_cookie = $logged_in_datas['username'] . '|' . $logged_in_datas['expiration'] . '|' . $logged_in_datas['token'] . '|' . $logged_in_datas['hmac'];
 
-        // Définition de la sécurité des cookies
-        $secure = ('https' === parse_url(home_url(), PHP_URL_SCHEME));
+        Cookie::make(md5($this->authCookieName), [
+            'name'   => $this->authCookieName,
+            'path'   => PLUGINS_COOKIE_PATH,
+            'domain' => COOKIE_DOMAIN,
+            'salt'   => '',
+            'base64' => true
+        ])->set($auth_datas);
 
-        // Génération des cookies de conservation de l'utilisateur principal
-        $response = new Response();
-        $response->headers->setCookie(
-            new Cookie(
-                $this->authCookieName,
-                $auth_cookie,
-                0,
-                PLUGINS_COOKIE_PATH,
-                COOKIE_DOMAIN ?: null,
-                $secure
-            )
-        );
-        $response->headers->setCookie(
-            new Cookie(
-                $this->authCookieName,
-                $auth_cookie,
-                0,
-                ADMIN_COOKIE_PATH,
-                COOKIE_DOMAIN ?: null,
-                $secure
-            )
-        );
-        $response->headers->setCookie(
-            new Cookie(
-                $this->loggedInCookieName,
-                $logged_in_cookie,
-                0,
-                COOKIEPATH,
-                COOKIE_DOMAIN ?: null,
-                $secure
-            )
-        );
+        Cookie::make(md5($this->authCookieName . 'admin'), [
+            'name'   =>  $this->authCookieName,
+            'path'   => ADMIN_COOKIE_PATH,
+            'domain' => COOKIE_DOMAIN,
+            'salt'   => '',
+            'base64' => true
+        ])->set($auth_datas);
+
+        Cookie::make(md5($this->loggedInCookieName), [
+            'name'   =>  $this->loggedInCookieName,
+            'path'   => COOKIEPATH,
+            'domain' => COOKIE_DOMAIN,
+            'salt'   => '',
+            'base64' => true
+        ])->set($logged_in_datas);
+
         if (COOKIEPATH != SITECOOKIEPATH) {
-            $response->headers->setCookie(
-                new Cookie(
-                    $this->loggedInCookieName,
-                    $logged_in_cookie,
-                    0,
-                    SITECOOKIEPATH,
-                    COOKIE_DOMAIN ?: null,
-                    $secure
-                )
-            );
+            Cookie::make(md5($this->loggedInCookieName . 'site'), [
+                'name'   =>  $this->loggedInCookieName,
+                'path'   => SITECOOKIEPATH,
+                'domain' => COOKIE_DOMAIN,
+                'salt'   => '',
+                'base64' => true
+            ])->set($logged_in_datas);
         }
 
-        // Envoi de la réponse
-        $send = $response->send();
-
-        // Récupération de la liste des cookies
-        $cookies = $send->headers->getCookies();
-
-        // Retour du succès de création des cookies
-        return !empty($cookies);
+        return true;
     }
 
     /**

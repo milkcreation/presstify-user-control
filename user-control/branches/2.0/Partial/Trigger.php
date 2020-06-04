@@ -4,6 +4,7 @@ namespace tiFy\Plugins\UserControl\Partial;
 
 use tiFy\Plugins\UserControl\Contracts\PartialTrigger;
 use tiFy\Contracts\Partial\PartialDriver as BasePartialDriver;
+use tiFy\Support\Proxy\Url;
 
 class Trigger extends AbstractPartialDriver implements PartialTrigger
 {
@@ -83,11 +84,12 @@ class Trigger extends AbstractPartialDriver implements PartialTrigger
                         $this->set('trigger.attrs.title', $title);
                     }
 
-                    $this->set('trigger.attrs.href', add_query_arg([
+                    $this->set('trigger.attrs.href', Url::set($handler->route->getUrl())->with([
                         'action'           => $this->get('action'),
+                        'csrf-token'       => wp_create_nonce('UserControl' . $this->get('name')),
                         'user_id'          => $user->ID,
                         '_wp_http_referer' => $this->get('redirect_url'),
-                    ], wp_nonce_url(home_url('/'), 'UserControl' . $this->get('name'), 'csrf-token')));
+                    ])->render());
                     break;
                 case 'restore' :
                     $this->visible = true;
@@ -104,10 +106,11 @@ class Trigger extends AbstractPartialDriver implements PartialTrigger
                         $this->set('trigger.attrs.title', $title);
                     }
 
-                    $this->set('trigger.attrs.href', add_query_arg([
+                    $this->set('trigger.attrs.href', Url::set($handler->route->getUrl())->with([
                         'action'           => $this->get('action'),
+                        'csrf-token'       => wp_create_nonce('UserControl' . $this->get('name')),
                         '_wp_http_referer' => $this->get('redirect_url'),
-                    ], wp_nonce_url(home_url('/'), 'UserControl' . $this->get('name'), 'csrf-token')));
+                    ])->render());
                     break;
                 default:
                     return $this;

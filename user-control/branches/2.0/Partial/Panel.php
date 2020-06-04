@@ -16,30 +16,6 @@ class Panel extends AbstractPartialDriver implements PartialPanel
     /**
      * @inheritDoc
      */
-    public function boot(): void
-    {
-        parent::boot();
-
-        add_action('init', function () {
-            wp_register_style(
-                'UserControlPanel',
-                $this->userControl->resourcesUrl('/assets/css/panel.css'),
-                [],
-                171218
-            );
-            wp_register_script(
-                'UserControlPanel',
-                $this->userControl->resourcesUrl('/assets/js/panel.js'),
-                ['UserControlSwitcher'],
-                171218,
-                true
-            );
-        });
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function defaults(): array
     {
         return array_merge(parent::defaults(), [
