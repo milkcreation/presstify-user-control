@@ -10,7 +10,10 @@ use tiFy\Support\Proxy\AbstractProxy;
  */
 class UserControl extends AbstractProxy
 {
-    public static function getInstanceIdentifier()
+    /**
+     * @inheritDoc
+     */
+    public static function getInstanceIdentifier(): string
     {
         return 'user-control';
     }
