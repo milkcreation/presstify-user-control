@@ -8,20 +8,13 @@
     "wordpress",
     "user"
   ],
-  "homepage": "https://svn.tigreblanc.fr/presstify-plugins/user-control",
-  "time": "2020-08-24",
-  "license": "proprietary",
+  "homepage": "https://github.com/milkcreation/presstify-user-control.git",
+  "time": "2021-09-14",
   "authors": [
     {
       "name": "Jordy Manner",
       "email": "jordy.manner@milkcreation.fr",
       "role": "Developper"
-    }
-  ],
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "http://composer.tigreblanc.fr/presstify/"
     }
   ],
   "require": {
